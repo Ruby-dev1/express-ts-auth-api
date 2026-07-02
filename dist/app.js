@@ -20,4 +20,13 @@ app.get("/", (req, res, next) => {
     });
 });
 //! path not found
+app.use((req, res, next) => {
+    const message = `cannot ${req.method} on ${req.path}`;
+    res.status(404).json({
+        message,
+        success: false,
+        status: "fail",
+        data: null,
+    });
+});
 exports.default = app;
