@@ -1,6 +1,7 @@
 import { NextFunction ,Request, Response} from "express";
 import User from "../models/user.model";
 import {hashPassword} from "../utils/bcrypt.utils";
+import appError from "../utils/appError.utils";
 
 
 //* register
@@ -15,23 +16,18 @@ export const register = async(
         const{full_name, email, password, phone}= req.body;
         
         if(!full_name){
-            const error: any = new Error("full_Name is required");
-            error.statusCode = 400;
-            error.status = "fail";
-            throw error;
-        }
+        //     const error: any = new Error("full_Name is required");
+        //     error.statusCode = 400;
+        //     error.status = "fail";
+        //     throw error;
+        // }
+        throw new appError("full_name is required", 400)}
 
         if(!email){
-            const error:any = new Error("email is required");
-            error.statusCode= 400;
-            error.status = "fail";
-            throw error;
+           throw new appError("email is required", 400);
         }
         if(!password){
-            const error:any = new Error("password is required");
-             error.statusCode= 400;
-            error.status = "fail";
-            throw error;
+            throw new appError("password is required",400);
 
         }
 
