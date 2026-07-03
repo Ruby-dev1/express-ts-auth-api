@@ -4,6 +4,9 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 // @types/packageName -> it has to be install in dev dependencies as it is only used in development not in produection 
 // npm i -D @types/Name
 
+//! importing routes 
+
+import authRoutes from "./routes/auth.routes";
 //*creating app instance
 
 const app = express();
@@ -14,8 +17,8 @@ app.use(express.json({limit:"10mb"}));
 
 
 //! using routes 
-
-
+ app.use("/api/v1/auth", authRoutes); //here v1 = api version
+//  app.use("/api/v2/auth", authRoutes); 
 //* health route
 
 app.get("/", (req:Request,res:Response, next:NextFunction)=>{

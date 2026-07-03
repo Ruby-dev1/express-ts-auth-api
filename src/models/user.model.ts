@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema({
         type:String,
 
     },
+
+role:{
+        type: String,
+        enum: ["USER", "ADMIN", "SUPER ADMIN"]   ,
+        default: "USER",     
+
+    },
 phone:{
          type:String,
          required: false,
