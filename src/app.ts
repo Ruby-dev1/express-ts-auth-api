@@ -6,7 +6,7 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 //! importing routes 
 
-import authRoutes from "./routes/auth.routes";
+import routes from "./routes"
 //*creating app instance
 
 const app = express();
@@ -17,8 +17,12 @@ app.use(express.json({limit:"10mb"}));
 
 
 //! using routes 
- app.use("/api/v1/auth", authRoutes); //here v1 = api version
+
+app.use("/api/v1", routes);
+//  app.use("/api/v1/auth", authRoutes); //here v1 = api version
 //  app.use("/api/v2/auth", authRoutes); 
+// app.use("/api/v1/user", userRoutes);
+
 //* health route
 
 app.get("/", (req:Request,res:Response, next:NextFunction)=>{
