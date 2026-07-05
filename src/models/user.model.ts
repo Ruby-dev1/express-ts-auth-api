@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "full_name is required"],
         minLength : [3, "name must be atleast 3 character long"],
-        triim: true,
+        trim: true,
     },
     email:{
         type:String,
@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
     password:{
         type:String,
         required: [true,"password is required"],
+        select: false,
 
     },
  profile_image: {

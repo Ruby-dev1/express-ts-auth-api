@@ -8,7 +8,7 @@ export const errorHandler = (error:any, req:Request, res:Response, next:NextFunc
     let  statusCode = error?.statusCode ?? 500;
     const success = false;
 
-     console.log(error.cause.code);
+    console.log(error?.cause?.code);
 
     if(error?.cause?.code ===11000){
         statusCode = 400;
@@ -20,6 +20,7 @@ export const errorHandler = (error:any, req:Request, res:Response, next:NextFunc
         status,
         data: null,
         originalError: error?.stack,
+    //   originalError: process.env.NODE_ENV === "development" ? error?.stack : undefined,
     });
 
 };

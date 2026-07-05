@@ -1,6 +1,6 @@
 import { NextFunction ,Request, Response} from "express";
 import User from "../models/user.model";
-import {hashPassword} from "../utils/bcrypt.utils";
+import {hashPassword,comparePassword} from "../utils/bcrypt.utils";
 import appError from "../utils/appError.utils";
 
 
@@ -40,6 +40,12 @@ export const register = async(
         const hashPass =  await hashPassword(password);
         user.password = hashPass;
 
+//         const hashPass = await hashPassword(password);
+
+// const user = new User({ email, password: hashPass, full_name, phone });
+
+// await user.save(); // now it saves the hashed version, only once
+
         //* handle profile_image upload
 
         //* success response 
@@ -59,6 +65,50 @@ export const register = async(
 }
 
 //* login 
+
+
+export const login = async(req:Request, res: Response, next:NextFunction,)=>{
+    try{
+        const {email,password}= req.body;
+        if(!email){
+            throw new appError("email is required",400);
+        }
+        if(!password){
+            throw new appError("password is required",400);
+        }
+
+        //* find user by email
+
+        const user = await User.findOne({email:email}).select("+password");
+
+        if(!user){
+            throw new appError("credentials not  matched",400);
+        }
+
+        //* compare password
+        const isPassMatched = await comparePassword(password, user.password);
+
+        if(!isPassMatched){
+            throw new appError("credentials not matched",400);
+        }
+
+        //todo: generate jwt token
+
+        //* send success response
+
+        res.status(201).json({
+            message: "Login success",
+            status: "success",
+            success: true,
+            data:user,
+        });
+
+
+    }
+    catch(error){
+        next (error)
+    }
+}
 
 //* get profile
 

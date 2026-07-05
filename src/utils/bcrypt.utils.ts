@@ -21,3 +21,14 @@ import bcrypt from "bcryptjs";
  }
 
  //* compare password
+
+ export const comparePassword = async(password:string, hash:string)=>{
+    try{
+        return await bcrypt.compare(password,hash);
+
+    }
+    catch(error){
+        throw error;
+    }
+
+ }
