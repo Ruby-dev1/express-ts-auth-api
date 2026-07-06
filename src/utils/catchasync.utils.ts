@@ -17,3 +17,4 @@ Promise.resolve(fn(req,res,next)).catch((error)=>next(error));
  }
 }
 
+//* this is the usable function code block for try and catch testing
