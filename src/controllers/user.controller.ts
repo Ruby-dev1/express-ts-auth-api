@@ -1,12 +1,13 @@
 import {Request, Response, NextFunction} from "express"
 import User from "../models/user.model"
 import appError from "../utils/appError.utils";
+import { catchasync } from "../utils/catchasync.utils";
 
 
 //* get all users
 
-export const getAll = async(req:Request, res:Response, next:NextFunction)=>{
-    try{
+export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
+    
         const users = await User.find({role:"USER"});
         res.status(200).json({
             message:"ALL users fetched",
@@ -14,16 +15,14 @@ export const getAll = async(req:Request, res:Response, next:NextFunction)=>{
             success: true,
             data:users,
         })
-    }
-    catch(error){
-        next(error);
-    }
-}
+
+  
+})
 
 
 //*  get all admins
-export const getAllAdmins = async(req:Request, res:Response, next:NextFunction)=>{
-    try{
+export const getAllAdmins = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
+    
         const users = await User.find({
             role:{
                 $in:["ADMIN", "SUPER ADMIN"]
@@ -35,18 +34,16 @@ export const getAllAdmins = async(req:Request, res:Response, next:NextFunction)=
             status: true,
             data:users,
         })
-    }
-    catch(error){
-        next(error);
-    }
-}
+    
 
+}
+)
 
 //* get user by id
 
 
-export const getbyID = async(req:Request, res:Response, next:NextFunction)=>{
-    try{
+export const getbyID = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
+    
 
         const {id} = req.params;
         const user = await User.findOne({_id:id});
@@ -61,8 +58,6 @@ export const getbyID = async(req:Request, res:Response, next:NextFunction)=>{
             data: user,
         })
 
-    }
-    catch(error){
-        next(error);
-    }
-};
+    
+   
+});
