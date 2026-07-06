@@ -22,6 +22,7 @@ app.use("/api/v1", routes);
 //  app.use("/api/v1/auth", authRoutes); //here v1 = api version
 //  app.use("/api/v2/auth", authRoutes); 
 // app.use("/api/v1/user", userRoutes);
+// app.use("/api/v1/brand",brandRoutes);
 
 //* health route
 

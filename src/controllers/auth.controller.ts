@@ -2,16 +2,16 @@ import { NextFunction ,Request, Response} from "express";
 import User from "../models/user.model";
 import {hashPassword,comparePassword} from "../utils/bcrypt.utils";
 import appError from "../utils/appError.utils";
-
+import {catchasync} from "../utils/catchasync.utils"
 
 //* register
 
-export const register = async(
+export const register = catchasync(async(
     req: Request,
     res:Response,
     next:NextFunction
 )=>{
-    try{
+    
         //*body
         const{full_name, email, password, phone}= req.body;
         
@@ -57,18 +57,14 @@ export const register = async(
             data: user,
         });
 
-    }
-    catch(error){
-        next(error);
-    }
-
-}
+    
+   } )
 
 //* login 
 
 
-export const login = async(req:Request, res: Response, next:NextFunction,)=>{
-    try{
+export const login = catchasync(async(req:Request, res: Response, next:NextFunction,)=>{
+    
         const {email,password}= req.body;
         if(!email){
             throw new appError("email is required",400);
@@ -104,11 +100,8 @@ export const login = async(req:Request, res: Response, next:NextFunction,)=>{
         });
 
 
-    }
-    catch(error){
-        next (error)
-    }
-}
+   
+})
 
 //* get profile
 
