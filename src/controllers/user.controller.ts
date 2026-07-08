@@ -2,13 +2,14 @@ import {Request, Response, NextFunction} from "express"
 import User from "../models/user.model"
 import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
+import {Role} from "../types/enum.types"
 
 
 //* get all users
 
 export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
     
-        const users = await User.find({role:"USER"});
+        const users = await User.find({role:Role.USER});
         res.status(200).json({
             message:"ALL users fetched",
             status: "success",
@@ -25,7 +26,7 @@ export const getAllAdmins = catchasync(async(req:Request, res:Response, next:Nex
     
         const users = await User.find({
             role:{
-                $in:["ADMIN", "SUPER ADMIN"]
+                $in:[Role.ADMIN, Role.SUPER_ADMIN]
             }
         })
         res.status(200).json({

@@ -1,8 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
 import app from "./app";
 import { connectDatabase } from "./config/db.config";
 
-const PORT = 8080;
- const DB_URI ="mongodb+srv://rubina:Bc9AWnXxIEyslHE7@cluster0.wlwmbat.mongodb.net/ecommerce?appName=Cluster0"
+const PORT = process.env.PORT || 8080;
+ const DB_URI = process.env.DB_URI!;
 
 
 //connect Database
@@ -18,3 +20,4 @@ connectDatabase(DB_URI);
 app.listen(PORT,()=>{
     console.log(`server is running at http://localhost:${PORT}`);
 });
+
