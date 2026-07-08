@@ -13,7 +13,8 @@ export const create = catchasync(async(req:Request, res:Response, next:NextFunct
             if (!name ) throw new appError("names are required", 400);
             if(!description) throw new appError("description are required",400);
     
-    
+        const existingBrand = await Brand.findOne({name});
+        if(existingBrand) throw new appError("name is already exists",404);
 
         const brand = await Brand.create({
             name,
