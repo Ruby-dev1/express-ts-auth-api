@@ -1,10 +1,12 @@
-import dotenv from "dotenv";
-dotenv.config();
+// import dotenv from "dotenv";
+// dotenv.config();
+import "dotenv/config";
 import app from "./app";
 import { connectDatabase } from "./config/db.config";
+import ENV_CONFIG from "./config/env.config";
 
-const PORT = process.env.PORT || 8080;
- const DB_URI = process.env.DB_URI!;
+const PORT = ENV_CONFIG.PORT ;
+ const DB_URI = ENV_CONFIG.DB_URI!;
 
 
 //connect Database
