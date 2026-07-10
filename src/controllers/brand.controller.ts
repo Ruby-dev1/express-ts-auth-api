@@ -2,6 +2,10 @@ import {Request, Response, NextFunction,} from "express";
 import Brand from "../models/brand.model";
 import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
+import {upload} from "../utils/cloudinary.utils";
+
+
+const uploadFolder = "/brands";
 
 
 //* create Brands
@@ -10,8 +14,10 @@ export const create = catchasync(async(req:Request, res:Response, next:NextFunct
     
 
         const {name, description} = req.body;
+        const file = req.file;
+        console.log(file);
             if (!name ) throw new appError("names are required", 400);
-            if(!description) throw new appError("description are required",400);
+            if(!file) throw new appError("logo is  required",400);
     
         const existingBrand = await Brand.findOne({name});
         if(existingBrand) throw new appError("name is already exists",404);
@@ -22,6 +28,18 @@ export const create = catchasync(async(req:Request, res:Response, next:NextFunct
             
         });
 
+         // * handle logo upload
+  //* upload to cloudinary
+  const { path, public_id } = await upload(file, uploadFolder);
+
+  //profile_image = {path:'',public_id:''}
+  // profile_image = ''
+
+  brand.logo = {
+    path,
+    public_id,
+  };
+
         res.status(201).json({
             message: "Brand is created successfully",
             success: true,
@@ -30,12 +48,7 @@ export const create = catchasync(async(req:Request, res:Response, next:NextFunct
 
         })
 
-
-//    await Brand.save();
-
-}
-)
-
+    })
 
 
 
