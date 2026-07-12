@@ -19,7 +19,7 @@ export const authenticate = (roles?:Role[])=>{
             const cookies = req.cookies;
             console.log(cookies);
             const access_token = cookies["access_token"];
-            console.log(access_token);
+            
 
 
             if(!access_token){
@@ -55,6 +55,12 @@ export const authenticate = (roles?:Role[])=>{
 
             if (roles && roles.length > 0 && !roles.includes(decoded_data.role)){
                 throw new appError("Unauthorized. Access denied.", 403);
+            }
+
+            req.user = {
+                _id:decoded_data._id,
+                email:decoded_data.email,
+                role:decoded_data.role,
             }
 
             next();

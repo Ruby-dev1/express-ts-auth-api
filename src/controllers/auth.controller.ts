@@ -1,4 +1,4 @@
-import { NextFunction ,Request, Response} from "express";
+import { NextFunction ,request,Request, Response} from "express";
 import User from "../models/user.model";
 import {hashPassword,comparePassword} from "../utils/bcrypt.utils";
 import appError from "../utils/appError.utils";
@@ -145,7 +145,53 @@ export const login = catchasync(async(req:Request, res: Response, next:NextFunct
    
 })
 
+
+//* logout
+
+
+
 //* get profile
+
+
+
+
+
+
+
+
+//* chnage profile image
+
+export const changeProfileImage = catchasync(
+    async(req:Request,res:Response)=>{
+       const{_id}= req.user ;
+       const file = req.file;
+       if(!file){
+        throw new appError("profile image is required", 400);
+       }
+       const user = await User.findOne({_id:_id});
+       if(!user){
+        throw new appError("profile not found", 400);
+       }
+//! delete oild image
+
+if(user.profile_image&& user.profile_image?.public_id){
+       await deleteFile(user.profile_image?.public_id);
+    } 
+
+       const {path, public_id} = await upload (file, uploadFolder);
+       user.profile_image={
+        path,
+        public_id,
+       };
+//* send success response
+
+sendResponse(res,{
+    message: "profile updated",
+    statusCode: 200,
+    data: user,
+});
+
+})
 
 //* change password 
 

@@ -1,16 +1,19 @@
 import express from "express";
 import { create,getAll,getbyID,update, remove} from "../controllers/brand.controller";
 import { authenticate } from "../middlewares/auth.middleware";
+import {ALL_Admins, } from "../types/enum.types"
+import { uploader } from "../middlewares/multer.middleware";
 
 const router = express.Router();
+const upload = uploader();
 
 //* create Brands
 
- router.post("/", create);
+ router.post("/", upload.single("logo"),authenticate(ALL_Admins),create);
 
  //* getAllBrands
 
- router.get("/",authenticate(), getAll);
+ router.get("/", getAll);
 
  //* getBrandbyID
 
@@ -18,10 +21,10 @@ const router = express.Router();
 
  //* updateBrand
 
- router.put("/:id", update);
+ router.put("/:id", upload.single("logo"),authenticate(ALL_Admins),update);
 
  //* removeBrand
 
- router.delete("/:id", remove);
+ router.delete("/:id", authenticate(ALL_Admins),remove);
 
  export default router;
