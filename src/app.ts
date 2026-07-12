@@ -1,6 +1,6 @@
 import express, { NextFunction ,Request, Response} from "express";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
-
+import cookieParser from "cookie-parser"
 // @types/packageName -> it has to be install in dev dependencies as it is only used in development not in produection 
 // npm i -D @types/Name
 
@@ -14,6 +14,7 @@ const app = express();
 
 //! using middlewares
 app.use(express.json({limit:"10mb"}));
+app.use(cookieParser());
 
 
 //! using routes 

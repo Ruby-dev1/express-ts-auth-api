@@ -67,14 +67,18 @@ export const register = catchasync(async(
           }
         }
             await user.save();
+
+            //* converting mongoose doc to js object
+            const {password:user_pass,...rest} = user.toObject()
         //* success response 
 
-        res.status(201).json({
-            message: "Acount created",
-            success: true,
-            sataus: "success",
-            data: user,
-        });
+       
+     sendResponse(res,{
+        message: "Account created ",
+        statusCode: 201,
+        data: rest,
+        
+     });
 
     
    } )

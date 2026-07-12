@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { IJwtpayload } from "../types/global.types";
+import { IJwtpayload, IJwtReturn } from "../types/global.types";
 import ENV_CONFIG from "../config/env.config";
 
 
@@ -22,9 +22,9 @@ export const generateJwtToken = (payload:IJwtpayload)=>{
 
 //* verify jwt token
 
-export const verifyJwtToken = (token: string)=>{
+export const verifyJwtToken = (token: string):IJwtReturn=>{
     try{
-        return jwt.verify(token, ENV_CONFIG.JWT_SECRET)
+        return jwt.verify(token, ENV_CONFIG.JWT_SECRET) as IJwtReturn;
     }catch(error){
         console.log(error)
         throw(error);

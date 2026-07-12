@@ -1,5 +1,6 @@
 import express from "express";
 import { create,getAll,getbyID,update, remove} from "../controllers/brand.controller";
+import { authenticate } from "../middlewares/auth.middleware";
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const router = express.Router();
 
  //* getAllBrands
 
- router.get("/", getAll);
+ router.get("/",authenticate(), getAll);
 
  //* getBrandbyID
 
