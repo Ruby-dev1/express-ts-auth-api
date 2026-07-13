@@ -10,6 +10,8 @@ export interface IProduct extends Document {
   images: IImage[];
   category: mongoose.Types.ObjectId;
   brand: mongoose.Types.ObjectId;
+  is_featured: Boolean;
+  //tags:
 }
 const productSchema = new Schema<IProduct>({
   name: {
@@ -60,6 +62,13 @@ images: [
     default: null,
 }
 ],
+
+is_featured: {
+    type: Boolean,
+    default: false,
+
+},
+//tags:{}
 
 
 },{timestamps:true},);
