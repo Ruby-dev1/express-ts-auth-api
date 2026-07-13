@@ -17,7 +17,7 @@ export const uploader = () => {
     },
 
     filename: (req, file, cb) =>
-        {const file_name= Date.now()+ + "-" + file.originalname;
+        {const file_name= Date.now()+ "-" + file.originalname;
             cb(null,file_name);
         } 
     //{
@@ -36,7 +36,8 @@ const fileFilter = (
             "image/jpg",
             "image/jpeg",
             "image/png",
-            "image/sv+xml",
+            "image/svg+xml",
+            "application/pdf",
             "doc/pdf"
         ];
 

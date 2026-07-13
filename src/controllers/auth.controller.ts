@@ -1,9 +1,9 @@
-import { NextFunction ,request,Request, Response} from "express";
+import { NextFunction,Request, Response} from "express";
 import User from "../models/user.model";
 import {hashPassword,comparePassword} from "../utils/bcrypt.utils";
 import appError from "../utils/appError.utils";
 import {catchasync} from "../utils/catchasync.utils"
-import { upload } from "../utils/cloudinary.utils";
+import { deleteFile,upload } from "../utils/cloudinary.utils";
 import { generateJwtToken } from "../utils/jwt.utils";
 import { IJwtpayload } from "../types/global.types";
 import ENV_CONFIG from "../config/env.config";
@@ -69,7 +69,7 @@ export const register = catchasync(async(
             await user.save();
 
             //* converting mongoose doc to js object
-            const {password:user_pass,...rest} = user.toObject()
+ const {password:user_pass,...rest} = user.toObject()
         //* success response 
 
        
