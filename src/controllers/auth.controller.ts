@@ -9,6 +9,7 @@ import { IJwtpayload } from "../types/global.types";
 import ENV_CONFIG from "../config/env.config";
 import { sendResponse } from "../utils/sendresponse.utils";
 import { sendEmail } from "../utils/emailservice.utils";
+import { newLoginDetectedHtml,accountCreatedHtml } from "../utils/emailTemplates.utils";
 
 const uploadFolder = "/profile_images";
 
@@ -75,10 +76,11 @@ export const register = catchasync(async(
             sendEmail({
                 to: user.email,
                 subject: "Account created",
-                html: `<div>
-                <h2> Account created</h2>
-                <p> Hello ${user.full_name}, welcome to out service</p>
-                </div>`
+                html: accountCreatedHtml({
+                    full_name: user.full_name,
+                    email: user.email,
+                    createdAt: user.createdAt,
+                })
             })
 
             //* converting mongoose doc to js object
@@ -124,6 +126,18 @@ export const login = catchasync(async(req:Request, res: Response, next:NextFunct
             throw new appError("credentials not matched",400);
         }
 
+
+        sendEmail({
+            to:user.email,
+            subject: "login Detected",
+            html: newLoginDetectedHtml({
+                full_name: user.full_name,
+                email: user.email,
+                loginTime: new Date(Date.now()),
+                device:req.headers["user-agent"]!!,
+            }),
+
+        })
         //todo: generate jwt token
         const payload:IJwtpayload={
             _id:user._id,
@@ -185,7 +199,7 @@ export const changeProfileImage = catchasync(
        if(!user){
         throw new appError("profile not found", 400);
        }
-//! delete oild image
+//! delete old image
 
 if(user.profile_image&& user.profile_image?.public_id){
        await deleteFile(user.profile_image?.public_id);
@@ -196,6 +210,8 @@ if(user.profile_image&& user.profile_image?.public_id){
         path,
         public_id,
        };
+
+       await user.save();
 //* send success response
 
 sendResponse(res,{

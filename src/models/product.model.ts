@@ -25,7 +25,7 @@ const productSchema = new Schema<IProduct>({
  price:{
     type: Number,
     required: [true, "price is required"],
-    trim: true,
+
 
 
   },
