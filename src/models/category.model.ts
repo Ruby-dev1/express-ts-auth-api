@@ -1,11 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 //* Interface
-
 export interface ICategory extends Document {
-  name: string;
-  description?: string;
-  logo: string;
+    name:string;
+    description?:string;
+    logo:{
+        path:string;
+        public_id:string;
+    };
 }
 
 //* category schema
@@ -26,15 +28,19 @@ const categorySchema = new Schema<ICategory>(
     minLength: 25,
     maxLength: 100,
   },
+logo:{
+    path:{
+        type:String,
+        required:true
+    },
+    public_id:{
+        type:String,
+        required:true
+    }
+},
+},
 
-  logo: {
-    type: String,
-    required: [true, "Logo is required"],
-    trim: true,
-
-  },
-
-},{
+{
     timestamps: true,
 },
 

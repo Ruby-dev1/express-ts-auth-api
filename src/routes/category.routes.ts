@@ -1,9 +1,9 @@
 import express from "express";
 import { getAll,getByID, create, update, remove } from "../controllers/category.controller";import { authenticate } from "../middlewares/auth.middleware";
 import {ALL_Admins, } from "../types/enum.types"
-
+import { uploader } from "../middlewares/multer.middleware";
 const router = express.Router();
-
+const upload = uploader();
 //* get all category
 
 router.get("/", getAll);
@@ -14,7 +14,12 @@ router.get("/:id", getByID);
 
 //* create category/post
 
-router.post("/", authenticate(ALL_Admins),create);
+router.post(
+    "/",
+    authenticate(ALL_Admins),
+    upload.single("logo"),
+    create
+);
 
 //* update/put 
 

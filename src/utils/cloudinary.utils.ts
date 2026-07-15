@@ -7,6 +7,8 @@ import fs from "fs"
 export const uploadToCloudinary = async(file:Express.Multer.File, dir ="/")=>{
 
     try{
+        console.log(file);
+console.log(file.path);
 
         const folder = "team_14_3_30" + dir
 
@@ -38,10 +40,10 @@ export const uploadToCloudinary = async(file:Express.Multer.File, dir ="/")=>{
 
     }
 
-    catch(error){
-        console.log(error);
-        throw new appError("something went wrong",500)
-    }
+    catch (error) {
+    console.error("Cloudinary Upload Error:", error);
+    throw error;
+}
 
 }
 

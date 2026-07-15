@@ -2,7 +2,7 @@ import {Request, Response, NextFunction,} from "express";
 import Brand from "../models/brand.model";
 import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
-import {upload} from "../utils/cloudinary.utils";
+import {uploadToCloudinary} from "../utils/cloudinary.utils";
 
 
 const uploadFolder = "/brands";
@@ -30,7 +30,7 @@ export const create = catchasync(async(req:Request, res:Response, next:NextFunct
 
          // * handle logo upload
   //* upload to cloudinary
-  const { path, public_id } = await upload(file, uploadFolder);
+  const { path, public_id } = await uploadToCloudinary(file, uploadFolder);
 
   //profile_image = {path:'',public_id:''}
   // profile_image = ''
