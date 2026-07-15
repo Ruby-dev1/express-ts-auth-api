@@ -10,6 +10,8 @@ import {
     getByNewArrivals,
     getByfeatured
 } from "../controllers/product.controller";
+import { authenticate } from "../middlewares/auth.middleware";
+import { ALL_Admins } from "../types/enum.types";
 
 import { uploader } from "../middlewares/multer.middleware";
 
@@ -55,6 +57,7 @@ router.post(
             maxCount:10
         }
     ]),
+    authenticate(ALL_Admins),
     create
 );
 

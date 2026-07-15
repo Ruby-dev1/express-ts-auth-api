@@ -4,17 +4,26 @@ import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
 import { sendResponse } from "../utils/sendresponse.utils";
 import { deleteFile, uploadToCloudinary } from "../utils/cloudinary.utils";
+import ImageSchema from "../models/image.model";
 
 //* create Product
 
 export const create = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, description, price, category, brand } = req.body;
-    if (!name) throw new appError("name is required", 400);
-    if (!description) throw new appError("description is required", 400);
-    if (!price) throw new appError("price is required", 400);
-    if (!category) throw new appError("category is required", 400);
-    if (!brand) throw new appError("brand is required", 400);
+    const {
+      name,
+      description,
+      price,
+      brand,
+      category,
+      is_featured,
+    } = req.body;
+
+    const existingProduct = await Product.findOne({ name });
+
+    if (existingProduct) {
+      throw new appError("Product already exists", 400);
+    }
 
     const files = req.files as {
       cover_image?: Express.Multer.File[];
@@ -22,53 +31,77 @@ export const create = catchasync(
     };
 
     const coverImageFile = files.cover_image?.[0];
-    if (!coverImageFile) throw new appError("cover Image is required", 400);
+
+    if (!coverImageFile) {
+      throw new appError("Cover image is required", 400);
+    }
 
     const uploadedCoverImage = await uploadToCloudinary(
       coverImageFile,
       "/products",
     );
-    const uploadedImages = [];
-    for (const image of files.images ?? []) {
-      const uploadedImage = await uploadToCloudinary(image, "/products");
-      uploadedImages.push(uploadedImage);
-    }
 
-    const existingProduct = await Product.findOne({ name });
-    if (existingProduct) throw new appError("name is already exist", 400);
+
+    //promise.all(arr_promise)
+    //promise.allsettled(arr_promise)
+    //promise.race(arr_promise)
+    //promise.any(arr_promise)
+
+    //* upload images
+   const images = files.images;
+
+let uploadedImages = [];
+
+if (images && images.length > 0) {
+  const promises = images.map((file) =>
+    uploadToCloudinary(file, "/products"),
+  );
+
+  const results = await Promise.allSettled(promises);
+
+  uploadedImages = results
+    .filter(
+      (
+        result,
+      ): result is PromiseFulfilledResult<any> =>
+        result.status === "fulfilled",
+    )
+    .map((result) => result.value);
+}
+
     const product = await Product.create({
       name,
       description,
       price,
-      category,
       brand,
+      category,
+      is_featured,
       cover_image: uploadedCoverImage,
       images: uploadedImages,
     });
 
     sendResponse(res, {
-      message: "Product is created",
       statusCode: 201,
+      message: "Product created successfully",
       data: product,
     });
   },
 );
 
-//* get all products
+//* get All 
+export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
+  const products = await Product.find()
+  .populate("category")
+  .populate("brand")
 
-export const getAll = catchasync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const products = await Product.find()
-      .populate("category")
-      .populate("brand");
+  sendResponse(res,{
+    message: "all products are fetched successfully",
+    statusCode: 200,
+    data: products,
+  });
 
-    sendResponse(res, {
-      message: "Product is fetched",
-      statusCode: 200,
-      data: products,
-    });
-  },
-);
+
+})
 
 //* get all products by id
 

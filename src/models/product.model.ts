@@ -11,6 +11,7 @@ export interface IProduct extends Document {
   category: mongoose.Types.ObjectId;
   brand: mongoose.Types.ObjectId;
   is_featured: Boolean;
+ 
   //tags:
 }
 const productSchema = new Schema<IProduct>({
