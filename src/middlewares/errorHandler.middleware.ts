@@ -19,6 +19,7 @@ export const errorHandler = (error:any, req:Request, res:Response, next:NextFunc
         success,
         status,
         data: null,
+        details : error?.errors ?? null,
         originalError: error?.stack,
     //   originalError: process.env.NODE_ENV === "development" ? error?.stack : undefined,
     });

@@ -3,7 +3,7 @@ import User from "../models/user.model";
 import {hashPassword,comparePassword} from "../utils/bcrypt.utils";
 import appError from "../utils/appError.utils";
 import {catchasync} from "../utils/catchasync.utils"
-import { deleteFile,upload } from "../utils/cloudinary.utils";
+import { deleteFile,uploadToCloudinary } from "../utils/cloudinary.utils";
 import { generateJwtToken } from "../utils/jwt.utils";
 import { IJwtpayload } from "../types/global.types";
 import ENV_CONFIG from "../config/env.config";
@@ -61,7 +61,7 @@ export const register = catchasync(async(
 
         if(file){
             //* upload to cloudinary
-          const {path, public_id}  = await upload(file,uploadFolder);
+          const {path, public_id}  = await uploadToCloudinary(file,uploadFolder);
 
           user.profile_image = {
             path,
@@ -205,7 +205,7 @@ if(user.profile_image&& user.profile_image?.public_id){
        await deleteFile(user.profile_image?.public_id);
     } 
 
-       const {path, public_id} = await upload (file, uploadFolder);
+       const {path, public_id} = await uploadToCloudinary (file, uploadFolder);
        user.profile_image={
         path,
         public_id,

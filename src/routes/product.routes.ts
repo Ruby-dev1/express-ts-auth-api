@@ -1,8 +1,9 @@
 import express from "express";
 import { getAll,getByID, create, update, remove, } from "../controllers/category.controller";
 import { getByCategory,getByBrand,getByNewArrivals,getByfeatured } from "../controllers/product.controller";
-import { upload } from "../utils/cloudinary.utils";
+import { uploader } from "../middlewares/multer.middleware";
 const router = express.Router();
+const upload = uploader();
 
 //* get all product
 
@@ -14,7 +15,17 @@ router.get("/:id", getByID);
 
 //* create product/post
 
-router.post("/", create);
+router.post("/", upload.fields([{
+    name:"cover_image",
+    maxCount: 1 ,
+},
+{
+    name: "images",
+    maxCount: 10,
+}
+
+]),create
+);
 
 //* update/put 
 
@@ -28,7 +39,7 @@ router.delete("/:id", remove);
 router.get("/category/:categoryId",getByCategory);
 
 //* get by brand
-router.get("/brand/:brandid",getByBrand);
+router.get("/brand/:brandId",getByBrand);
 
 //* get by new_arrivals
 router.get("/new-arrivals", getByNewArrivals);

@@ -3,18 +3,36 @@ import Product from "../models/product.model";
 import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
 import { sendResponse } from "../utils/sendresponse.utils";
+import { deleteFile, uploadToCloudinary } from "../utils/cloudinary.utils";
 
 //* create Product
 
 export const create = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, description, price, category, brand, cover_image } = req.body;
+    const { name, description, price, category, brand } = req.body;
     if (!name) throw new appError("name is required", 400);
     if (!description) throw new appError("description is required", 400);
     if (!price) throw new appError("price is required", 400);
     if (!category) throw new appError("category is required", 400);
     if (!brand) throw new appError("brand is required", 400);
-    if (!cover_image) throw new appError("cover_image is required", 400);
+
+    const files = req.files as {
+      cover_image?: Express.Multer.File[];
+      images?: Express.Multer.File[];
+    };
+
+    const coverImageFile = files.cover_image?.[0];
+    if (!coverImageFile) throw new appError("cover Image is required", 400);
+
+    const uploadedCoverImage = await uploadToCloudinary(
+      coverImageFile,
+      "/products",
+    );
+    const uploadedImages = [];
+    for (const image of files.images ?? []) {
+      const uploadedImage = await uploadToCloudinary(image, "/products");
+      uploadedImages.push(uploadedImage);
+    }
 
     const existingProduct = await Product.findOne({ name });
     if (existingProduct) throw new appError("name is already exist", 400);
@@ -24,7 +42,8 @@ export const create = catchasync(
       price,
       category,
       brand,
-      cover_image
+      cover_image: uploadedCoverImage,
+      images: uploadedImages,
     });
 
     sendResponse(res, {
@@ -39,7 +58,10 @@ export const create = catchasync(
 
 export const getAll = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const products = await Product.find();
+    const products = await Product.find()
+      .populate("category")
+      .populate("brand");
+
     sendResponse(res, {
       message: "Product is fetched",
       statusCode: 200,
@@ -53,7 +75,9 @@ export const getAll = catchasync(
 export const getByID = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
+      .populate("category")
+      .populate("brand");
     if (!product) throw new appError("product not found", 404);
 
     sendResponse(res, {
@@ -72,10 +96,44 @@ export const update = catchasync(
     const existingProduct = await Product.findById(id);
     if (!existingProduct) throw new appError("product does not exist", 404);
 
-    const { name, description, price, category, brand, cover_image } = req.body;
+    const { name, description, price, category, brand, is_featured } = req.body;
+    const files = req.files as {
+      cover_image?: Express.Multer.File[];
+      images?: Express.Multer.File[];
+    };
+
+    const updateData: any = {
+      name,
+      description,
+      price,
+      category,
+      brand,
+      is_featured,
+    };
+
+    const coverImageFile = files.cover_image?.[0];
+
+    if (coverImageFile) {
+      await deleteFile(existingProduct.cover_image.public_id);
+      const uploadedCoverImage = await uploadToCloudinary(
+        coverImageFile,
+        "/products",
+      );
+      updateData.cover_image = uploadedCoverImage;
+    }
+
+    const uploadedImages = [];
+    for (const image of files.images ?? []) {
+      const uploadedImage = await uploadToCloudinary(image, "/products");
+      uploadedImages.push(uploadedImage);
+
+     
+    }
+     updateData.images = [...existingProduct.images, ...uploadedImages];
+
     const updateProduct = await Product.findByIdAndUpdate(
-      { _id: id },
-      { name, description, price ,category, brand, cover_image},
+      id,
+      updateData,
       { new: true },
     );
     sendResponse(res, {
@@ -91,8 +149,14 @@ export const update = catchasync(
 export const remove = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const product = await Product.findByIdAndDelete({ _id: id });
+    const product = await Product.findById({ _id: id });
     if (!product) throw new appError("product not found", 404);
+    await deleteFile(product.cover_image.public_id);
+
+    for( const image of product.images){
+      await deleteFile(image.public_id);
+    }
+    await Product.findByIdAndDelete(id);
 
     sendResponse(res, {
       message: "Product is deleted",

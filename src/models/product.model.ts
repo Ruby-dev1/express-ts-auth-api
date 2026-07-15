@@ -20,12 +20,12 @@ const productSchema = new Schema<IProduct>({
     trim: true,
     unique: true,
     minLength: 3,
-    maxLength: 10,
+    maxLength: 100,
   },
  price:{
     type: Number,
     required: [true, "price is required"],
-
+    trim: true,
 
 
   },
@@ -47,7 +47,7 @@ cover_image: {
 category:{
     type:mongoose.Schema.Types.ObjectId,
     required: [true, "category is required"],
-    ref: "category",
+    ref: "Category",
 
 },
 
@@ -56,12 +56,12 @@ brand:{
     required: [true, "Brand is required"],
     ref: "Brand"
 },
-images: [
+images: 
     {
-    type:ImageSchema,
-    default: null,
+    type:[ImageSchema],
+    default: [],
 }
-],
+,
 
 is_featured: {
     type: Boolean,

@@ -4,7 +4,7 @@ import fs from "fs"
 
 //* upload 
 
-export const upload = async(file:Express.Multer.File, dir ="/")=>{
+export const uploadToCloudinary = async(file:Express.Multer.File, dir ="/")=>{
 
     try{
 
