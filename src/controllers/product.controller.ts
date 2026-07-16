@@ -90,7 +90,27 @@ if (images && images.length > 0) {
 
 //* get All 
 export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
-  const products = await Product.find()
+
+   const { query } = req.query;
+    const filter: Record<string, any> = {};
+
+    if (query) {
+      filter.$or = [
+        {
+          name: {
+            $regex: query, //subtring match
+            $options: "i", // case insensitive match
+          },
+        },
+        {
+          description: {
+            $regex: query,
+            $options: "i",
+          },
+        },
+      ];
+    }
+  const products = await Product.find(filter)
   .populate("category")
   .populate("brand")
 
@@ -121,15 +141,29 @@ export const getByID = catchasync(
   },
 );
 
+
 //* update product
 
 export const update = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const existingProduct = await Product.findById(id);
-    if (!existingProduct) throw new appError("product does not exist", 404);
 
-    const { name, description, price, category, brand, is_featured } = req.body;
+    const existingProduct = await Product.findById(id);
+
+    if (!existingProduct) {
+      throw new appError("Product does not exist", 404);
+    }
+
+    const {
+      name,
+      description,
+      price,
+      category,
+      brand,
+      is_featured,
+      deleted_images,
+    } = req.body;
+
     const files = req.files as {
       cover_image?: Express.Multer.File[];
       images?: Express.Multer.File[];
@@ -144,37 +178,69 @@ export const update = catchasync(
       is_featured,
     };
 
+    //*  Cover Image 
+
     const coverImageFile = files.cover_image?.[0];
 
     if (coverImageFile) {
       await deleteFile(existingProduct.cover_image.public_id);
+
       const uploadedCoverImage = await uploadToCloudinary(
         coverImageFile,
-        "/products",
+        "/products"
       );
+
       updateData.cover_image = uploadedCoverImage;
     }
 
+    //* Upload New Images 
+
     const uploadedImages = [];
+
     for (const image of files.images ?? []) {
-      const uploadedImage = await uploadToCloudinary(image, "/products");
+      const uploadedImage = await uploadToCloudinary(
+        image,
+        "/products"
+      );
+
       uploadedImages.push(uploadedImage);
-
-     
     }
-     updateData.images = [...existingProduct.images, ...uploadedImages];
 
-    const updateProduct = await Product.findByIdAndUpdate(
+    //*Delete Selected Old Images 
+
+    if (deleted_images?.length > 0) {
+      for (const publicId of deleted_images) {
+        await deleteFile(publicId);
+      }
+
+      existingProduct.images = existingProduct.images.filter(
+        (image) => !deleted_images.includes(image.public_id)
+      );
+    }
+
+    //* Merge Remaining + New 
+
+    updateData.images = [
+      ...existingProduct.images,
+      ...uploadedImages,
+    ];
+
+    //* Update ----------------
+
+    const updatedProduct = await Product.findByIdAndUpdate(
       id,
       updateData,
-      { new: true },
+      {
+        new: true,
+      }
     );
+
     sendResponse(res, {
-      message: "Product is updated",
       statusCode: 200,
-      data: updateProduct,
+      message: "Product updated successfully",
+      data: updatedProduct,
     });
-  },
+  }
 );
 
 //* delete
@@ -184,13 +250,26 @@ export const remove = catchasync(
     const { id } = req.params;
     const product = await Product.findById({ _id: id });
     if (!product) throw new appError("product not found", 404);
-    await deleteFile(product.cover_image.public_id);
 
-    for( const image of product.images){
-      await deleteFile(image.public_id);
-    }
-    await Product.findByIdAndDelete(id);
 
+    //* delete cover image
+    deleteFile(product.cover_image.public_id);
+
+
+   // await deleteFile(product.cover_image.public_id);
+
+
+   //* delete images 
+   if( product.images&& product.images.length>0){
+    Promise.allSettled(product.images.map((img)=>deleteFile(img.public_id)))
+   }
+    // for( const image of product.images){
+    //   await deleteFile(image.public_id);
+    // }
+    // await Product.findByIdAndDelete(id);
+//* delete product 
+
+await product.deleteOne();
     sendResponse(res, {
       message: "Product is deleted",
       statusCode: 200,

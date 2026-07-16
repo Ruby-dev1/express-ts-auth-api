@@ -10,7 +10,26 @@ const uploadFolder = "/category_images";
 
 export const getAll = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const categories = await Category.find();
+    const { query, order = "DESC", sortBy = "createdAt" } = req.query;
+    const filter: Record<string, any> = {};
+
+    if (query) {
+      filter.$or = [
+        {
+          name: {
+            $regex: query, //subtring match
+            $options: "i", // case insensitive match
+          },
+        },
+        {
+          description: {
+            $regex: query,
+            $options: "i",
+          },
+        },
+      ];
+    }
+    const categories = await Category.find(filter).sort({[sortBy as string]: order=== "DESC" ? -1:1});
 
     res.status(200).json({
       message: "All categories are fetched",

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express  from "express";
 import {
   Add_Wishlist,
   Get_Wishlist,
@@ -7,7 +7,7 @@ import {
 } from "../controllers/wishlist.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
-const router = Router();
+const router = express.Router();
 
 router.post("/", authenticate, Add_Wishlist);
 router.get("/", authenticate, Get_Wishlist);

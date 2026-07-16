@@ -1,144 +1,143 @@
-import {Request, Response, NextFunction,} from "express";
+import { Request, Response, NextFunction } from "express";
 import Brand from "../models/brand.model";
 import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
-import {uploadToCloudinary} from "../utils/cloudinary.utils";
-
+import { uploadToCloudinary } from "../utils/cloudinary.utils";
 
 const uploadFolder = "/brands";
 
-
 //* create Brands
 
-export const create = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
-    
+export const create = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { name, description } = req.body;
+    const file = req.file;
+    console.log(file);
+    if (!name) throw new appError("names are required", 400);
+    if (!file) throw new appError("logo is  required", 400);
 
-        const {name, description} = req.body;
-        const file = req.file;
-        console.log(file);
-            if (!name ) throw new appError("names are required", 400);
-            if(!file) throw new appError("logo is  required",400);
-    
-        const existingBrand = await Brand.findOne({name});
-        if(existingBrand) throw new appError("name is already exists",404);
+    const existingBrand = await Brand.findOne({ name });
+    if (existingBrand) throw new appError("name is already exists", 404);
 
-        const brand = await Brand.create({
-            name,
-            description,
-            
-        });
+    const brand = await Brand.create({
+      name,
+      description,
+    });
 
-         // * handle logo upload
-  //* upload to cloudinary
-  const { path, public_id } = await uploadToCloudinary(file, uploadFolder);
+    // * handle logo upload
+    //* upload to cloudinary
+    const { path, public_id } = await uploadToCloudinary(file, uploadFolder);
 
-  //profile_image = {path:'',public_id:''}
-  // profile_image = ''
+    //profile_image = {path:'',public_id:''}
+    // profile_image = ''
 
-  brand.logo = {
-    path,
-    public_id,
-  };
+    brand.logo = {
+      path,
+      public_id,
+    };
 
-        res.status(201).json({
-            message: "Brand is created successfully",
-            success: true,
-            status: "success",
-            data:brand,
-
-        })
-
-    })
-
-
-
+    res.status(201).json({
+      message: "Brand is created successfully",
+      success: true,
+      status: "success",
+      data: brand,
+    });
+  },
+);
 
 //* get all brands
 
-export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
+export const getAll = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { query,order = "DESC", sortBy= "createdAt"} = req.query;
+    const filter: Record<string, any> = {};
 
-        
-        const brands = await Brand.find();
-        res.status(200).json({
-            message:" Brand is fetched",
-            success: true,
-            status: "success",
-            data: brands,
-        })
+    if (query) {
+      filter.$or = [
+        {
+          name: {
+            $regex: query, //subtring match
+            $options: "i", // case insensitive match
+          },
+        },
+        {
+          description: {
+            $regex: query,
+            $options: "i",
+          },
+        },
+      ];
     }
-   
-)
 
+    const brands = await Brand.find(filter).sort({[sortBy as string]:order === "DESC" ? -1:1});
+    res.status(200).json({
+      message: " Brand is fetched",
+      success: true,
+      status: "success",
+      data: brands,
+    });
+  },
+);
 
 //* get brands by ID
 
-export const getbyID = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
-
-
-    const {id} = req.params
+export const getbyID = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
     const brand = await Brand.findById(id);
-    if(!brand){
-        return new appError("Brand not found",404)
+    if (!brand) {
+      return new appError("Brand not found", 404);
     }
 
     res.status(200).json({
-        message:`Brand by is ${id} is fetched`,
-        success: true,
-        status:"success",
-        data: brand,
+      message: `Brand by is ${id} is fetched`,
+      success: true,
+      status: "success",
+      data: brand,
+    });
+  },
+);
 
-    })
+//* update brand
 
+export const update = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
 
-
-})
-
-//* update brand 
-
-export const update = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
-    
-
-        const {id} = req.params;
-
-        const updateBrand = await Brand.findByIdAndUpdate(id, req.body, {
+    const updateBrand = await Brand.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
 
-    if(!updateBrand){
-        throw new appError("Brand not found",404);
+    if (!updateBrand) {
+      throw new appError("Brand not found", 404);
     }
 
     res.status(200).json({
-        message: "Brand updated successfully",
-        success: true,
-        status: "success",
-        data: updateBrand,
-
+      message: "Brand updated successfully",
+      success: true,
+      status: "success",
+      data: updateBrand,
     });
-    
-})
+  },
+);
 
 //* Delete Brand
 
-export const remove = catchasync(async(req:Request, res: Response, next: NextFunction)=>{
-    
-        const {id} = req.params;
-        const removeBrand = await Brand.findByIdAndDelete(id);
+export const remove = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const removeBrand = await Brand.findByIdAndDelete(id);
 
-        if(!removeBrand){
-            throw new appError("Brand not found",404);
-        }
-
-        res.status(200).json({
-            message:"Brand is deleted successfully",
-            success: true,
-            status:"success",
-            data:removeBrand,
-        });
-
-
-    
+    if (!removeBrand) {
+      throw new appError("Brand not found", 404);
     }
 
-)
+    res.status(200).json({
+      message: "Brand is deleted successfully",
+      success: true,
+      status: "success",
+      data: removeBrand,
+    });
+  },
+);

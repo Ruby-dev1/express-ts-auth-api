@@ -75,5 +75,5 @@ is_featured: {
 },{timestamps:true},);
 
 
-const Product = mongoose.model<IProduct>("product", productSchema)
+const Product = mongoose.model<IProduct>("Product", productSchema)
 export default Product;

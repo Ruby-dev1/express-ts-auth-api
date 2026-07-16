@@ -40,7 +40,10 @@ export const Add_Cart = catchasync(
       );
 
       if (existingItem) {
-        existingItem.quantity += quantity || 1;
+        existingItem.quantity += quantity ?? 1;
+        if (quantity && quantity < 1) {
+          throw new appError("Quantity must be at least 1", 400);
+        }
       } else {
         cart.items.push({
           product: productId,
@@ -163,10 +166,10 @@ export const Clear_Cart = catchasync(
 
     await cart.save();
 
-   sendResponse(res, {
-  message: "Cart cleared successfully",
-  statusCode: 200,
-  data: cart,
-});
+    sendResponse(res, {
+      message: "Cart cleared successfully",
+      statusCode: 200,
+      data: cart,
+    });
   },
 );

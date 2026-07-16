@@ -30,7 +30,7 @@ export const Add_Wishlist = catchasync(
         products: [productId],
       });
     } else {
-      if (wishlist.products.includes(productId)) {
+      if (wishlist.products.some((item) => item.toString() === productId)) {
         throw new appError("Product already exists in wishlist", 400);
       }
 
@@ -38,12 +38,12 @@ export const Add_Wishlist = catchasync(
       await wishlist.save();
     }
 
-  sendResponse(res,{
-    message: "Product added to wishlist successfully",
-    statusCode: 200,
-    data: wishlist,
-  })
-  }
+    sendResponse(res, {
+      message: "Product added to wishlist successfully",
+      statusCode: 200,
+      data: wishlist,
+    });
+  },
 );
 
 //* Get Wishlist
@@ -53,7 +53,7 @@ export const Get_Wishlist = catchasync(
     const userId = req.user._id;
 
     const wishlist = await Wishlist.findOne({ user: userId }).populate(
-      "products"
+      "products",
     );
 
     if (!wishlist) {
@@ -63,12 +63,12 @@ export const Get_Wishlist = catchasync(
       });
     }
 
-   sendResponse(res,{
-    message: "wishlist is fetched",
-    statusCode:200,
-    data:wishlist,
-   })
-  }
+    sendResponse(res, {
+      message: "wishlist is fetched",
+      statusCode: 200,
+      data: wishlist,
+    });
+  },
 );
 
 //* Remove Product from Wishlist
@@ -85,17 +85,17 @@ export const Remove_Wishlist = catchasync(
     }
 
     wishlist.products = wishlist.products.filter(
-      (item) => item.toString() !== productId
+      (item) => item.toString() !== productId,
     );
 
     await wishlist.save();
 
-    sendResponse(res,{
-        message: "product is removed from wishlist successfully",
-        statusCode:200,
-        data:wishlist,
-    })
-  }
+    sendResponse(res, {
+      message: "product is removed from wishlist successfully",
+      statusCode: 200,
+      data: wishlist,
+    });
+  },
 );
 
 //* Clear Wishlist
@@ -114,10 +114,10 @@ export const Clear_Wishlist = catchasync(
 
     await wishlist.save();
 
-   sendResponse(res,{
-    message:"wishlist is clear",
-    statusCode: 200,
-    data:wishlist,
-   })
-  }
+    sendResponse(res, {
+      message: "Wishlist cleared successfully",
+      statusCode: 200,
+      data: wishlist,
+    });
+  },
 );
