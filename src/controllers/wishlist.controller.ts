@@ -12,9 +12,6 @@ export const Add_Wishlist = catchasync(
     const userId = req.user._id;
     const { productId } = req.body;
 
-    if (!productId) {
-      throw new appError("Product ID is required", 400);
-    }
 
     const product = await Product.findById(productId);
 
