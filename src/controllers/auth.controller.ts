@@ -26,21 +26,21 @@ export const register = catchasync(async(
         const file = req.file
         console.log(file);
         
-        if(!full_name){
-        //     const error: any = new Error("full_Name is required");
-        //     error.statusCode = 400;
-        //     error.status = "fail";
-        //     throw error;
+        // if(!full_name){
+        // //     const error: any = new Error("full_Name is required");
+        // //     error.statusCode = 400;
+        // //     error.status = "fail";
+        // //     throw error;
+        // // }
+        // throw new appError("full_name is required", 400)}
+
+        // if(!email){
+        //    throw new appError("email is required", 400);
         // }
-        throw new appError("full_name is required", 400)}
+        // if(!password){
+        //     throw new appError("password is required",400);
 
-        if(!email){
-           throw new appError("email is required", 400);
-        }
-        if(!password){
-            throw new appError("password is required",400);
-
-        }
+        // }
 
         const user = new User ({email, password, full_name, phone});
         
@@ -104,14 +104,14 @@ export const register = catchasync(async(
 export const login = catchasync(async(req:Request, res: Response, next:NextFunction,)=>{
     
         const {email,password}= req.body;
-        if(!email){
-            throw new appError("email is required",400);
-        }
-        if(!password){
-            throw new appError("password is required",400);
-        }
+        // if(!email){
+        //     throw new appError("email is required",400);
+        // }
+        // if(!password){
+        //     throw new appError("password is required",400);
+        // }
 
-        //* find user by email
+        // //* find user by email
 
         const user = await User.findOne({email:email}).select("+password");
 
