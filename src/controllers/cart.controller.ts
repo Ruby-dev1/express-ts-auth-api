@@ -12,9 +12,7 @@ export const Add_Cart = catchasync(
     const userId = req.user._id;
     const { productId, quantity } = req.body;
 
-    if (!productId) {
-      throw new appError("Product ID is required", 400);
-    }
+  
 
     const product = await Product.findById(productId);
 
@@ -30,7 +28,7 @@ export const Add_Cart = catchasync(
         items: [
           {
             product: productId,
-            quantity: quantity || 1,
+            quantity: quantity ?? 1,
           },
         ],
       });
@@ -41,13 +39,11 @@ export const Add_Cart = catchasync(
 
       if (existingItem) {
         existingItem.quantity += quantity ?? 1;
-        if (quantity && quantity < 1) {
-          throw new appError("Quantity must be at least 1", 400);
-        }
+     
       } else {
         cart.items.push({
           product: productId,
-          quantity: quantity || 1,
+          quantity: quantity ?? 1,
         });
       }
 
@@ -93,10 +89,7 @@ export const Update_Cart = catchasync(
     const userId = req.user._id;
     const { productId, quantity } = req.body;
 
-    if (quantity < 1) {
-      throw new appError("Quantity must be at least 1", 400);
-    }
-
+  
     const cart = await Cart.findOne({ user: userId });
 
     if (!cart) {

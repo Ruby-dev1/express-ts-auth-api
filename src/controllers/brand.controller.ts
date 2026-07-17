@@ -13,7 +13,7 @@ export const create = catchasync(
     const { name, description } = req.body;
     const file = req.file;
     console.log(file);
-    if (!name) throw new appError("names are required", 400);
+
     if (!file) throw new appError("logo is  required", 400);
 
     const existingBrand = await Brand.findOne({ name });

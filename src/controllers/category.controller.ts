@@ -67,13 +67,6 @@ export const create = catchasync(
     const { name, description } = req.body;
     const file = req.file;
 
-    if (!name) {
-      throw new appError("name is required", 400);
-    }
-
-    if (!description) {
-      throw new appError("description is required", 400);
-    }
 
     if (!file) {
       throw new appError("logo is required", 400);
