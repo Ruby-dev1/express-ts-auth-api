@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const brandValidateSchema = z.object({
+export const BrandValidateSchema = z.object({
   body: z.object({
     name: z
       .string("name must be string")
