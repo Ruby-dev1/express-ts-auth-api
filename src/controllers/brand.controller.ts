@@ -3,6 +3,8 @@ import Brand from "../models/brand.model";
 import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
 import { uploadToCloudinary } from "../utils/cloudinary.utils";
+import { sendResponse } from "../utils/sendresponse.utils";
+import { getPagination } from "../utils/pagination.utils";
 
 const uploadFolder = "/brands";
 
@@ -49,7 +51,11 @@ export const create = catchasync(
 
 export const getAll = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { query,order = "DESC", sortBy= "createdAt"} = req.query;
+    const { query,order = "DESC", sortBy= "createdAt",page=1, limit=10} = req.query;
+
+    const current_page = Number(page);
+    const perPage = Number(limit);
+    const skip = (current_page-1) *perPage;
     const filter: Record<string, any> = {};
 
     if (query) {
@@ -69,13 +75,18 @@ export const getAll = catchasync(
       ];
     }
 
-    const brands = await Brand.find(filter).sort({[sortBy as string]:order === "DESC" ? -1:1});
-    res.status(200).json({
-      message: " Brand is fetched",
-      success: true,
-      status: "success",
-      data: brands,
-    });
+    const brands = await Brand.find(filter).limit(perPage).skip(skip).sort({[sortBy as string]:order === "DESC" ? -1:1});
+
+    const totalCount = await Brand.countDocuments(filter);
+
+   sendResponse(res,{
+    message:"Brands fetched",
+    data:{
+      brands,
+      pagination:getPagination (totalCount, perPage, current_page),
+    },
+    statusCode: 200,
+   })
   },
 );
 

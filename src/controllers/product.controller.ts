@@ -91,7 +91,7 @@ if (images && images.length > 0) {
 //* get All 
 export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
 
-   const { query } = req.query;
+   const { query,category, brand, minPrice, maxPrice} = req.query;
     const filter: Record<string, any> = {};
 
     if (query) {
@@ -110,6 +110,45 @@ export const getAll = catchasync(async(req:Request, res:Response, next:NextFunct
         },
       ];
     }
+
+    //* category
+    if(category){
+      filter.category = category;
+
+    }
+
+    //* brands
+
+    if(brand){
+      filter.brand = brand;
+    }
+
+    //* price range 
+
+    if(minPrice || maxPrice){
+      const low = Number(minPrice);
+      const high = Number(maxPrice);
+
+      if(low){
+        filter.price = {
+          $gte: low,
+        };
+      }
+
+      if(high){
+        filter.price = {
+          $lte: high,
+        };
+      }
+
+      if(low&&high){
+        filter.price = {
+          $lte: high,
+          $gte: low,
+        }
+      }
+    }
+
   const products = await Product.find(filter)
   .populate("category")
   .populate("brand")

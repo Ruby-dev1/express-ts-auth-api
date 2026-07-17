@@ -9,12 +9,13 @@ import {
 import { authenticate } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validator.middleware";
 import { CartValidateSchema } from "../validators/cart.validator";
+import { User_Only } from "../types/enum.types";
 
 const router = express.Router();
 
 //* Add product to cart
 router.post("/",
-     authenticate(),
+     authenticate(User_Only),
      validate(CartValidateSchema),
       Add_Cart);
 
@@ -26,7 +27,7 @@ router.get("/",
 //* Update product quantity
 router.put("/", 
     authenticate(),
-     validate(CartValidateSchema),
+    // validate(CartValidateSchema),
      Update_Cart);
 
 // *Remove a product from cart
