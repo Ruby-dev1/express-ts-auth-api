@@ -2,6 +2,8 @@ import express from "express";
 import { getAll,getByID, create, update, remove } from "../controllers/category.controller";import { authenticate } from "../middlewares/auth.middleware";
 import {ALL_Admins, } from "../types/enum.types"
 import { uploader } from "../middlewares/multer.middleware";
+import { validate } from "../middlewares/validator.middleware";
+import { CategoryValidateSchema } from "../validators/category .validators";
 const router = express.Router();
 const upload = uploader();
 //* get all category
@@ -18,12 +20,16 @@ router.post(
     "/",
     authenticate(ALL_Admins),
     upload.single("logo"),
+    validate(CategoryValidateSchema),
     create
 );
 
 //* update/put 
 
-router.put("/:id",authenticate(ALL_Admins), update);
+router.put("/:id",
+    authenticate(ALL_Admins),
+    validate(CategoryValidateSchema),
+     update);
 
 //* delete
 

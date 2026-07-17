@@ -7,17 +7,27 @@ import {
   Clear_Cart,
 } from "../controllers/cart.controller";
 import { authenticate } from "../middlewares/auth.middleware";
+import { validate } from "../middlewares/validator.middleware";
+import { CartValidateSchema } from "../validators/cart.validator";
 
 const router = express.Router();
 
 //* Add product to cart
-router.post("/", authenticate(), Add_Cart);
+router.post("/",
+     authenticate(),
+     validate(CartValidateSchema),
+      Add_Cart);
 
 //* Get logged-in user's cart
-router.get("/", authenticate(), Get_Cart);
+router.get("/",
+    authenticate(),
+     Get_Cart);
 
 //* Update product quantity
-router.put("/", authenticate(), Update_Cart);
+router.put("/", 
+    authenticate(),
+     validate(CartValidateSchema),
+     Update_Cart);
 
 // *Remove a product from cart
 router.delete("/:productId", authenticate(), Remove_Cart);
