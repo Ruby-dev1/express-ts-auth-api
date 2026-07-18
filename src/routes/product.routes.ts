@@ -15,14 +15,16 @@ import { ALL_Admins } from "../types/enum.types";
 
 import { uploader } from "../middlewares/multer.middleware";
 import { validate } from "../middlewares/validator.middleware";
-import { BrandIdSchema, CategoryIdSchema, ProductIdSchema, ProductValidateSchema, UpdateProductSchema } from "../validators/product.validators";
+import { BrandIdSchema, CategoryIdSchema, ProductIdSchema, ProductQuerySchema, ProductValidateSchema, UpdateProductSchema } from "../validators/product.validators";
 
 const router = express.Router();
 const upload = uploader();
 
 
 //* get all product
-router.get("/", getAll);
+router.get("/", getAll,
+   validate (ProductQuerySchema),
+);
 
 
 //* get by category

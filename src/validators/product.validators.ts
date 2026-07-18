@@ -114,7 +114,7 @@ export  const UpdateProductSchema = z.object({
 
     }),
      query: z.object({}).default({}),
-  })
+  });
        
 
    
@@ -139,7 +139,7 @@ export const CategoryIdSchema = z.object({
      query:z.object({}).default({})
 
     
-})
+});
 
 
 
@@ -153,4 +153,4 @@ export const BrandIdSchema = z.object({
      query:z.object({}).default({})
 
 
-})
+});
