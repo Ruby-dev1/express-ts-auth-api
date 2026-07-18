@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+//* for create
 export const ProductValidateSchema = z.object({
   body: z.object({
     name: z
@@ -29,9 +30,56 @@ export const ProductValidateSchema = z.object({
   
 });
 
+//* get all validation 
+
+export const ProductQuerySchema = z.object({
+  body: z.object({}).default({}),
+  params:z.object({}).default({}),
+
+  query:z.object({
+    query:z.string().optional(),
+
+    category:z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/,"Invalid categroyId")
+    .optional(),
+
+    Brand: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/,"Invalid BrandId")
+    .optional(),
+
+    minPrice: z.coerce
+    .number()
+    .min(0, "Minimum price cannot be negative")
+    .optional(),
+    
+
+    maxPrice: z.coerce
+    .number()
+    .min(0, "Maximum price cannot be nagative")
+    .optional(),
+
+
+
+  }).refine(
+    (data)=>
+      data.minPrice===undefined||
+      data.maxPrice===undefined||
+      data.minPrice<= data.maxPrice,
+      {
+        message:"minPrice must be less than or equal to maxPrice",
+        path:["minPrice"],
+      }
+
+  ),
+
+});
+
+//* update validation
 export  const UpdateProductSchema = z.object({
     body:z.object({
-         body: z.object({
+       
     name: z
       .string("name must be string")
       .min(3, "name must be atleast 3 characters long")
@@ -55,7 +103,6 @@ export  const UpdateProductSchema = z.object({
     is_featured: z
     .coerce.boolean()
     .optional(),
-  }),
   
   deleted_images: z
   .array(z.string())
@@ -66,10 +113,13 @@ export  const UpdateProductSchema = z.object({
         id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID"),
 
     }),
-    query: z.object({}).default({}),
-})
+     query: z.object({}).default({}),
+  })
+       
 
+   
 
+//* get by id validation
 export const ProductIdSchema = z.object({
     body:z.object({}).default({}),
     params:z.object({
@@ -79,6 +129,8 @@ export const ProductIdSchema = z.object({
 
 });
 
+
+//* category by id validation
 export const CategoryIdSchema = z.object({
      body:z.object({}).default({}),
     params:z.object({
@@ -88,6 +140,10 @@ export const CategoryIdSchema = z.object({
 
     
 })
+
+
+
+//* Brand by id validation
 
 export const BrandIdSchema = z.object({
     body:z.object({}).default({}),

@@ -5,3 +5,4 @@ export const wishlistValidateSchema = z.object({
     productId: z.string().min(1, "productId is required"),
   }),
 });
+

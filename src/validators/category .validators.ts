@@ -21,7 +21,7 @@ export const CategoryValidateSchema = z.object({
     });
 
 
-    export const UpdataeCategorySchema = z.object({
+    export const UpdateCategorySchema = z.object({
       body:z.object({
          name: z
               .string("name must be string")
@@ -47,11 +47,14 @@ export const CategoryValidateSchema = z.object({
       })
 
 
-      // export const CategoryIdSchema = z.object({
-      //   body:z.object({
-      //     params: z.object({
-      //       id:z.string()..regex(/^[0-9a-fA-F]{24}$/,"Invalid CategoryId"),
-      //     }),
-      //   })
-      // })
+      export const CategoryIdSchema = z.object({
+        body:z.object({}).default({}),
+          params: z.object({
+            id:z.string().regex(/^[0-9a-fA-F]{24}$/,"Invalid CategoryId"),
+          }),
+          query:z.object({}).default({})
+      
+      })
+
+
     
