@@ -42,8 +42,20 @@ process.on("unhandledRejection",(error)=>{
 process.on("SIGINT",()=>{
     console.log("SIGINT");
     server.close(async(error)=>{
+        console.log(error);
         await mongoose.disconnect();
         process.exit(0);
     })
 });
+
+
+process.on("SIGTERM",()=>{
+    console.log("SIGTERM");
+    server.close(async(error)=>{
+        console.log(error);
+        await mongoose.disconnect();
+        process.exit(0);
+    })
+});
+
 
