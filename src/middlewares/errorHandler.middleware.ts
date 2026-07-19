@@ -1,4 +1,6 @@
 import { NextFunction , Request, Response} from "express";
+import { JsonWebTokenError } from "jsonwebtoken";
+import { TokenExpiredError } from "jsonwebtoken";
 
 
 export const errorHandler = (error:any, req:Request, res:Response, next:NextFunction)=>{
@@ -14,6 +16,19 @@ export const errorHandler = (error:any, req:Request, res:Response, next:NextFunc
         statusCode = 400;
         status ="fail"
     }
+
+    if(error instanceof JsonWebTokenError){
+        message: "Invalid token. Login require";
+        statusCode: 401;
+
+    }
+      if(error instanceof TokenExpiredError){
+        message: "Token expired . Login require";
+        statusCode: 401;
+
+    }
+
+
     res.status(statusCode).json({
         message,
         success,
