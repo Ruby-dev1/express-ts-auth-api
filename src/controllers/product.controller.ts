@@ -5,6 +5,7 @@ import { catchasync } from "../utils/catchasync.utils";
 import { sendResponse } from "../utils/sendresponse.utils";
 import { deleteFile, uploadToCloudinary } from "../utils/cloudinary.utils";
 import ImageSchema from "../models/image.model";
+import { getPagination } from "../utils/pagination.utils";
 
 //* create Product
 
@@ -91,7 +92,11 @@ if (images && images.length > 0) {
 //* get All 
 export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
 
-   const { query,category, brand, minPrice, maxPrice} = req.query;
+   const { query,category, brand, minPrice, maxPrice,order,sortBy="createdAt",page=1,limit=10} = req.query;
+
+   const current_page = Number(page);
+   const perPage = Number(limit);
+   const skip = (current_page-1)*perPage;
     const filter: Record<string, any> = {};
 
     if (query) {
@@ -149,14 +154,18 @@ export const getAll = catchasync(async(req:Request, res:Response, next:NextFunct
       }
     }
 
-  const products = await Product.find(filter)
-  .populate("category")
+  const products = await Product.find(filter).limit(perPage).skip(skip).sort({[sortBy as string]:order === "DESC"?-1:1})
+  const totalCount = await Product.countDocuments(filter)
+    .populate("category")
   .populate("brand")
 
   sendResponse(res,{
     message: "all products are fetched successfully",
     statusCode: 200,
-    data: products,
+    data: {
+      products,
+     pagination: getPagination(totalCount,perPage,current_page),
+    }
   });
 
 

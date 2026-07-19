@@ -74,6 +74,28 @@ export const ProductQuerySchema = z.object({
 
   ),
 
+  sortBy: z
+  .enum(["name", "createdAt", "updatedAt"])
+  .default("createdAt"),
+  
+  order: z
+  .enum(["ASC", "DES"])
+  .default("DES"),
+
+  page: z
+  .number()
+  .int()
+  .min(1, "Page must be atleast 1")
+  .default(1),
+
+  limit:z
+  .number()
+  .int()
+  .min(1, "limit must be atleast 1")
+  .max(100, "limit cannot exceed 100")
+  .default(10),
+
+
 });
 
 //* update validation
@@ -119,7 +141,7 @@ export  const UpdateProductSchema = z.object({
 
    
 
-//* get by id validation
+//* get by id  & delete validation
 export const ProductIdSchema = z.object({
     body:z.object({}).default({}),
     params:z.object({

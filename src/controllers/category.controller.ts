@@ -3,6 +3,7 @@ import Category from "../models/category.model";
 import { catchasync } from "../utils/catchasync.utils";
 import appError from "../utils/appError.utils";
 import { uploadToCloudinary, deleteFile } from "../utils/cloudinary.utils";
+import { getPagination } from "../utils/pagination.utils";
 
 const uploadFolder = "/category_images";
 
@@ -10,7 +11,10 @@ const uploadFolder = "/category_images";
 
 export const getAll = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { query, order = "DESC", sortBy = "createdAt" } = req.query;
+    const { query, order = "DESC", sortBy = "createdAt",page=1, limit=10 } = req.query;
+    const current_page = Number(page);
+    const perPage = Number(limit);
+    const skip = (current_page-1)* perPage;
     const filter: Record<string, any> = {};
 
     if (query) {
@@ -29,14 +33,18 @@ export const getAll = catchasync(
         },
       ];
     }
-    const categories = await Category.find(filter).sort({[sortBy as string]: order=== "DESC" ? -1:1});
-
+    const categories = await Category.find(filter).limit(perPage).skip(skip).sort({[sortBy as string]: order=== "DESC" ? -1:1});
+    const totalCount = await Category.countDocuments(filter)
     res.status(200).json({
       message: "All categories are fetched",
       success: true,
       status: "success",
       count: categories.length,
-      data: categories,
+      data: {
+        categories,
+        pagination: getPagination(totalCount,perPage,current_page)
+
+      }
     });
   },
 );
