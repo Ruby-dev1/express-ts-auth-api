@@ -22,8 +22,9 @@ const upload = uploader();
 
 
 //* get all product
-router.get("/", getAll,
+router.get("/", 
    validate (ProductQuerySchema),
+   getAll,
 );
 
 
