@@ -39,6 +39,8 @@ process.on("unhandledRejection",(error)=>{
     process.exit(1);
 });
 
+
+// development ctrl + c
 process.on("SIGINT",()=>{
     console.log("SIGINT");
     server.close(async(error)=>{
@@ -48,7 +50,7 @@ process.on("SIGINT",()=>{
     })
 });
 
-
+// production (pm2, docker....)
 process.on("SIGTERM",()=>{
     console.log("SIGTERM");
     server.close(async(error)=>{

@@ -4,7 +4,6 @@ import appError from "../utils/appError.utils";
 import { catchasync } from "../utils/catchasync.utils";
 import { sendResponse } from "../utils/sendresponse.utils";
 import { deleteFile, uploadToCloudinary } from "../utils/cloudinary.utils";
-import ImageSchema from "../models/image.model";
 import { getPagination } from "../utils/pagination.utils";
 
 //* create Product
