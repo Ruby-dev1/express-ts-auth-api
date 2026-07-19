@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+//* create validator
+
 export const BrandValidateSchema = z.object({
   body: z.object({
     name: z
@@ -16,9 +18,11 @@ export const BrandValidateSchema = z.object({
   }),
 });
 
+//* update validator
+
 export const UpdateBrandSchema = z.object({
-  body:z.object({
-     name: z
+  body: z.object({
+    name: z
       .string("name must be string")
       .trim()
       .min(2, "name must be atleast 3 characters long")
@@ -32,7 +36,40 @@ export const UpdateBrandSchema = z.object({
   }),
 
   params: z.object({
-    id: z.string().regex(/^[0-9a-fA-F]{24}$/,"Invalid BrandId"),
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid BrandId"),
   }),
-  query: z.object({}).default({})
-  })
+  query: z.object({}).default({}),
+});
+
+//* get all
+
+export const BrandquerySchema = z.object({
+  body: z.object({}).default({}),
+  params: z.object({}).default({}),
+  query: z.object({
+    query: z.string().optional(),
+    sortBy: z.enum(["name", "createdAt", "updatedAt"]).default("createdAt"),
+
+    order: z.enum(["ASC", "DES"]).default("DES"),
+
+    page: z.number().int().min(1, "Page must be atleast 1").default(1),
+
+    limit: z
+      .number()
+      .int()
+      .min(1, "limit must be atleast 1")
+      .max(100, "limit cannot exceed 100")
+      .default(10),
+  }),
+});
+
+//* get by id & delete
+
+export const BrandbyIdSchema = z.object({
+  body:z.object({}).default({}),
+  params: z.object({
+    id:z.string().regex(/^[0-9a-f-A-F]{24}$/,"Invalid BrandId"),
+  }),
+  query:z.object({}).default({}),
+
+})
