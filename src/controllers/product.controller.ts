@@ -11,14 +11,7 @@ import { getPagination } from "../utils/pagination.utils";
 
 export const create = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      name,
-      description,
-      price,
-      brand,
-      category,
-      is_featured,
-    } = req.body;
+    const { name, description, price, brand, category, is_featured } = req.body;
 
     const existingProduct = await Product.findOne({ name });
 
@@ -42,33 +35,30 @@ export const create = catchasync(
       "/products",
     );
 
-
     //promise.all(arr_promise)
     //promise.allsettled(arr_promise)
     //promise.race(arr_promise)
     //promise.any(arr_promise)
 
     //* upload images
-   const images = files.images;
+    const images = files.images;
 
-let uploadedImages = [];
+    let uploadedImages = [];
 
-if (images && images.length > 0) {
-  const promises = images.map((file) =>
-    uploadToCloudinary(file, "/products"),
-  );
+    if (images && images.length > 0) {
+      const promises = images.map((file) =>
+        uploadToCloudinary(file, "/products"),
+      );
 
-  const results = await Promise.allSettled(promises);
+      const results = await Promise.allSettled(promises);
 
-  uploadedImages = results
-    .filter(
-      (
-        result,
-      ): result is PromiseFulfilledResult<any> =>
-        result.status === "fulfilled",
-    )
-    .map((result) => result.value);
-}
+      uploadedImages = results
+        .filter(
+          (result): result is PromiseFulfilledResult<any> =>
+            result.status === "fulfilled",
+        )
+        .map((result) => result.value);
+    }
 
     const product = await Product.create({
       name,
@@ -89,14 +79,24 @@ if (images && images.length > 0) {
   },
 );
 
-//* get All 
-export const getAll = catchasync(async(req:Request, res:Response, next:NextFunction)=>{
+//* get All
+export const getAll = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      query,
+      category,
+      brand,
+      minPrice,
+      maxPrice,
+      order,
+      sortBy = "createdAt",
+      page = 1,
+      limit = 10,
+    } = req.query;
 
-   const { query,category, brand, minPrice, maxPrice,order,sortBy="createdAt",page=1,limit=10} = req.query;
-
-   const current_page = Number(page);
-   const perPage = Number(limit);
-   const skip = (current_page-1)*perPage;
+    const current_page = Number(page);
+    const perPage = Number(limit);
+    const skip = (current_page - 1) * perPage;
     const filter: Record<string, any> = {};
 
     if (query) {
@@ -117,59 +117,60 @@ export const getAll = catchasync(async(req:Request, res:Response, next:NextFunct
     }
 
     //* category
-    if(category){
+    if (category) {
       filter.category = category;
-
     }
 
     //* brands
 
-    if(brand){
+    if (brand) {
       filter.brand = brand;
     }
 
-    //* price range 
+    //* price range
 
-    if(minPrice || maxPrice){
+    if (minPrice || maxPrice) {
       const low = Number(minPrice);
       const high = Number(maxPrice);
 
-      if(low){
+      if (low) {
         filter.price = {
           $gte: low,
         };
       }
 
-      if(high){
+      if (high) {
         filter.price = {
           $lte: high,
         };
       }
 
-      if(low&&high){
+      if (low && high) {
         filter.price = {
           $lte: high,
           $gte: low,
-        }
+        };
       }
     }
 
-  const products = await Product.find(filter).limit(perPage).skip(skip).sort({[sortBy as string]:order === "DESC"?-1:1})
-  const totalCount = await Product.countDocuments(filter)
-    .populate("category")
-  .populate("brand")
+    const products = await Product.find(filter)
+      .limit(perPage)
+      .skip(skip)
+      .sort({ [sortBy as string]: order === "DESC" ? -1 : 1 });
+    const totalCount = await Product.countDocuments(filter)
+      .populate("category")
+      .populate("brand");
 
-  sendResponse(res,{
-    message: "all products are fetched successfully",
-    statusCode: 200,
-    data: {
-      products,
-     pagination: getPagination(totalCount,perPage,current_page),
-    }
-  });
-
-
-})
+    sendResponse(res, {
+      message: "all products are fetched successfully",
+      statusCode: 200,
+      data: {
+        products,
+        pagination: getPagination(totalCount, perPage, current_page),
+      },
+    });
+  },
+);
 
 //* get all products by id
 
@@ -188,7 +189,6 @@ export const getByID = catchasync(
     });
   },
 );
-
 
 //* update product
 
@@ -226,7 +226,7 @@ export const update = catchasync(
       is_featured,
     };
 
-    //*  Cover Image 
+    //*  Cover Image
 
     const coverImageFile = files.cover_image?.[0];
 
@@ -235,26 +235,23 @@ export const update = catchasync(
 
       const uploadedCoverImage = await uploadToCloudinary(
         coverImageFile,
-        "/products"
+        "/products",
       );
 
       updateData.cover_image = uploadedCoverImage;
     }
 
-    //* Upload New Images 
+    //* Upload New Images
 
     const uploadedImages = [];
 
     for (const image of files.images ?? []) {
-      const uploadedImage = await uploadToCloudinary(
-        image,
-        "/products"
-      );
+      const uploadedImage = await uploadToCloudinary(image, "/products");
 
       uploadedImages.push(uploadedImage);
     }
 
-    //*Delete Selected Old Images 
+    //*Delete Selected Old Images
 
     if (deleted_images?.length > 0) {
       for (const publicId of deleted_images) {
@@ -262,33 +259,26 @@ export const update = catchasync(
       }
 
       existingProduct.images = existingProduct.images.filter(
-        (image) => !deleted_images.includes(image.public_id)
+        (image) => !deleted_images.includes(image.public_id),
       );
     }
 
-    //* Merge Remaining + New 
+    //* Merge Remaining + New
 
-    updateData.images = [
-      ...existingProduct.images,
-      ...uploadedImages,
-    ];
+    updateData.images = [...existingProduct.images, ...uploadedImages];
 
     //* Update ----------------
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      updateData,
-      {
-        new: true,
-      }
-    );
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
 
     sendResponse(res, {
       statusCode: 200,
       message: "Product updated successfully",
       data: updatedProduct,
     });
-  }
+  },
 );
 
 //* delete
@@ -299,25 +289,24 @@ export const remove = catchasync(
     const product = await Product.findById({ _id: id });
     if (!product) throw new appError("product not found", 404);
 
-
     //* delete cover image
     deleteFile(product.cover_image.public_id);
 
+    // await deleteFile(product.cover_image.public_id);
 
-   // await deleteFile(product.cover_image.public_id);
-
-
-   //* delete images 
-   if( product.images&& product.images.length>0){
-    Promise.allSettled(product.images.map((img)=>deleteFile(img.public_id)))
-   }
+    //* delete images
+    if (product.images && product.images.length > 0) {
+      Promise.allSettled(
+        product.images.map((img) => deleteFile(img.public_id)),
+      );
+    }
     // for( const image of product.images){
     //   await deleteFile(image.public_id);
     // }
     // await Product.findByIdAndDelete(id);
-//* delete product 
+    //* delete product
 
-await product.deleteOne();
+    await product.deleteOne();
     sendResponse(res, {
       message: "Product is deleted",
       statusCode: 200,
