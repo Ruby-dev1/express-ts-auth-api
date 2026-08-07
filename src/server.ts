@@ -2,7 +2,7 @@
 // dotenv.config();
 
 process.on("uncaughtException",(error)=>{
-    console.log("uncaughtEception",error);
+    console.log("uncaughtException",error);
     process.exit(1);
 });
 
