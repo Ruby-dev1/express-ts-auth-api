@@ -174,10 +174,46 @@ export const login = catchasync(async(req:Request, res: Response, next:NextFunct
 
 
 //* logout
+export const logout = catchasync(async(req:Request,res:Response)=>{
+    res.clearCookie("access_token",{
+        
+            httpOnly: ENV_CONFIG.NODE_ENV=== "development"? false :true,
+            secure: ENV_CONFIG.NODE_ENV === "development"? false: true,
+            maxAge: 7*24*60*60*1000,
+            sameSite: ENV_CONFIG.NODE_ENV === "development"? "lax": true,
+    });
+
+    sendResponse(res,{
+        message:"Logout Success",
+        statusCode:200,
+        data:null
+    })
+})
 
 
 
-//* get profile
+export const getProfile = catchasync(async (req: Request, res: Response) => {
+
+    const {id} = req.user._id
+    const user = await User.findById(id);
+
+    if(!user){
+         res.clearCookie("access_token",{
+        
+            httpOnly: ENV_CONFIG.NODE_ENV=== "development"? false :true,
+            secure: ENV_CONFIG.NODE_ENV === "development"? false: true,
+            maxAge: 7*24*60*60*1000,
+            sameSite: ENV_CONFIG.NODE_ENV === "development"? "lax": true,
+    });
+    throw new appError("profile not found",400)
+    }
+    sendResponse(res, {
+        message: "Profile fetched",
+        statusCode: 200,
+        data: user,
+    });
+});
+
 
 
 

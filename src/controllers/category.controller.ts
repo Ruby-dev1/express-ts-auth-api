@@ -74,6 +74,7 @@ export const create = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, description } = req.body;
     const file = req.file;
+    console.log("FILE IN CONTROLLER:", file);
 
 
     if (!file) {
