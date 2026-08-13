@@ -11,6 +11,7 @@ export interface IProduct extends Document {
   category: mongoose.Types.ObjectId;
   brand: mongoose.Types.ObjectId;
   is_featured: Boolean;
+  new_arrivals:Boolean;
  
   //tags:
 }
@@ -68,6 +69,11 @@ is_featured: {
     type: Boolean,
     default: false,
 
+},
+
+new_arrivals:{
+  type:Boolean,
+  default:false,
 },
 //tags:{}
 

@@ -68,7 +68,7 @@ router.post(
             maxCount:10
         }
     ]),
-    authenticate(ALL_Admins),
+//    authenticate(ALL_Admins),
     validate(ProductValidateSchema),
     create
 );

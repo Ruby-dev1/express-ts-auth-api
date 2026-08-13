@@ -8,22 +8,23 @@ const router = express.Router();
 const upload = uploader();
 //* get all category
 
-router.get("/", getAll,
-    validate(CategoryquerySchema)
+router.get("/",  validate(CategoryquerySchema), getAll,
+   
 );
 
 //* get category by id
 
 router.get("/:id", 
+       validate(CategorybyIdSchema),
     getByID,
-    validate(CategorybyIdSchema),
+ 
 );
 
 //* create category/post
 
 router.post(
     "/",
-    authenticate(ALL_Admins),
+    //authenticate(ALL_Admins),
     upload.single("logo"),
     validate(CategoryValidateSchema),
     create
