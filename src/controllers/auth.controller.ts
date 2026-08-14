@@ -222,7 +222,7 @@ export const getProfile = catchasync(async (req: Request, res: Response) => {
 
 
 
-//* chnage profile image
+//* change profile image
 
 export const changeProfileImage = catchasync(
     async(req:Request,res:Response)=>{

@@ -24,11 +24,9 @@ router.get("/:id",
 
 router.post(
     "/",
+    //authenticate(ALL_Admins),
     upload.single("logo"),
-    (req, res, next) => {
-        console.log("FILE AFTER MULTER:", req.file);
-        next();
-    },
+   validate(CategoryValidateSchema),
     create
 );
 

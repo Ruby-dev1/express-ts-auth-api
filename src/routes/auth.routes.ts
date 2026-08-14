@@ -25,7 +25,7 @@ router.post('/register',upload.single("profile_image"),    validate(registerUser
 //* login
 router.post('/login',login);
 
-//* chnage profile image
+//* change profile image
 router.put(
     "/profile-image",
     upload.single("profile_image"),
