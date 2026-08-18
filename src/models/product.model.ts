@@ -12,6 +12,7 @@ export interface IProduct extends Document {
   brand: mongoose.Types.ObjectId;
   is_featured: Boolean;
   new_arrivals:Boolean;
+  stock:number;
  
   //tags:
 }
@@ -40,7 +41,12 @@ description: {
     maxLength: 500,
   },
 
-
+  stock: {
+    type: Number,
+    required: true,
+    default: 0,
+    min: 0,
+  },
 cover_image: {
     type:ImageSchema,
     required: [true, "cover image is required"],

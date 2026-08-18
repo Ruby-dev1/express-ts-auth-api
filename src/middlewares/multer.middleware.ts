@@ -10,49 +10,40 @@ export const uploader = () => {
   if (!fs.existsSync(folder)) {
     fs.mkdirSync(folder, { recursive: true });
   }
-//* multer disk storage
+  //* multer disk storage
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, folder);
     },
 
-    filename: (req, file, cb) =>
-        {const file_name= Date.now()+ "-" + file.originalname;
-            cb(null,file_name);
-        } 
+    filename: (req, file, cb) => {
+      const file_name = Date.now() + "-" + file.originalname;
+      cb(null, file_name);
+    },
     //{
     //   const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     //   cb(null, file.fieldname + "-" + uniqueSuffix + "-" + file.originalname);
     // },
   });
-//* file filter
+  //* file filter
 
-const fileFilter = (
-    req:Request,
+  const fileFilter = (
+    req: Request,
     file: Express.Multer.File,
-    callback: FileFilterCallback)=>{
+    callback: FileFilterCallback,
+  ) => {
+    const allowed_mime_types = ["image/jpeg", "image/png", "image/svg+xml"];
 
-        const allowed_mime_types = [
-            "image/jpg",
-            "image/jpeg",
-            "image/png",
-            "image/svg+xml",
-            "application/pdf",
-            "doc/pdf"
-        ];
-
-        if(!allowed_mime_types.includes(file.mimetype)){
-            callback(new appError(`${file.mimetype}is not allowed`,422))
-        }
-        else {
-            callback(null, true);
-        }
-
-};
+    if (!allowed_mime_types.includes(file.mimetype)) {
+      callback(new appError(`${file.mimetype}is not allowed`, 422));
+    } else {
+      callback(null, true);
+    }
+  };
   //* multer upload instances
   const upload = multer({
     storage: storage,
-    fileFilter:fileFilter,
+    fileFilter: fileFilter,
 
     limits: {
       fileSize: file_size,

@@ -25,7 +25,7 @@ const upload = uploader();
 router.post(
   "/",
   upload.single("logo"),
-  //authenticate(ALL_Admins),
+  authenticate(ALL_Admins),
   validate(BrandValidateSchema),
   create,
 );
@@ -50,7 +50,7 @@ router.get(
 router.put(
   "/:id",
   upload.single("logo"),
-  authenticate(ALL_Admins),
+ // authenticate(ALL_Admins),
   validate(UpdateBrandSchema),
   update,
 );

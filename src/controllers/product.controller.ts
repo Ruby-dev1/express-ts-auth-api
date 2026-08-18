@@ -10,7 +10,7 @@ import { getPagination } from "../utils/pagination.utils";
 
 export const create = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { name, description, price, brand, category, is_featured } = req.body;
+    const { name, description, price,stock, brand, category, is_featured } = req.body;
 
     const existingProduct = await Product.findOne({ name });
 
@@ -63,6 +63,7 @@ export const create = catchasync(
       name,
       description,
       price,
+      stock,
       brand,
       category,
       is_featured,
@@ -152,14 +153,14 @@ export const getAll = catchasync(
       }
     }
 
-    const products = await Product.find(filter)
-      .limit(perPage)
-      .skip(skip)
-      .sort({ [sortBy as string]: order === "DESC" ? -1 : 1 });
-    const totalCount = await Product.countDocuments(filter)
-      .populate("category")
-      .populate("brand");
+ const products = await Product.find(filter)
+  .populate("category")
+  .populate("brand")
+  .limit(perPage)
+  .skip(skip)
+  .sort({ [sortBy as string]: order === "DESC" ? -1 : 1 });
 
+const totalCount = await Product.countDocuments(filter);
     sendResponse(res, {
       message: "all products are fetched successfully",
       statusCode: 200,
@@ -205,6 +206,7 @@ export const update = catchasync(
       name,
       description,
       price,
+      stock,
       category,
       brand,
       is_featured,
@@ -220,6 +222,7 @@ export const update = catchasync(
       name,
       description,
       price,
+      stock,
       category,
       brand,
       is_featured,
@@ -281,37 +284,37 @@ export const update = catchasync(
 );
 
 //* delete
-
 export const remove = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const product = await Product.findById({ _id: id });
-    if (!product) throw new appError("product not found", 404);
 
-    //* delete cover image
-    deleteFile(product.cover_image.public_id);
+    const product = await Product.findById(id);
 
-    // await deleteFile(product.cover_image.public_id);
+    if (!product) {
+      throw new appError("Product not found", 404);
+    }
 
-    //* delete images
+    // Delete cover image from Cloudinary
+    if (product.cover_image?.public_id) {
+      await deleteFile(product.cover_image.public_id);
+    }
+
+    // Delete other images from Cloudinary
     if (product.images && product.images.length > 0) {
-      Promise.allSettled(
-        product.images.map((img) => deleteFile(img.public_id)),
+      await Promise.allSettled(
+        product.images.map((img) => deleteFile(img.public_id))
       );
     }
-    // for( const image of product.images){
-    //   await deleteFile(image.public_id);
-    // }
-    // await Product.findByIdAndDelete(id);
-    //* delete product
 
+    // Delete product from MongoDB
     await product.deleteOne();
+
     sendResponse(res, {
       message: "Product is deleted",
       statusCode: 200,
       data: product,
     });
-  },
+  }
 );
 
 //* get by category

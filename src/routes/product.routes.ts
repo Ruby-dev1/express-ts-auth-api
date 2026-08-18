@@ -57,22 +57,31 @@ router.get("/:id",
 
 //* create product
 router.post(
-    "/",
-    upload.fields([
-        {
-            name:"cover_image",
-            maxCount:1
-        },
-        {
-            name:"images",
-            maxCount:10
-        }
-    ]),
-//    authenticate(ALL_Admins),
-    validate(ProductValidateSchema),
-    create
-);
+  "/",
 
+  upload.fields([
+    {
+      name: "cover_image",
+      maxCount: 1,
+    },
+    {
+      name: "images",
+      maxCount: 10,
+    },
+  ]),
+
+  (req, res, next) => {
+    console.log("========== AFTER MULTER ==========");
+    console.log("BODY:", req.body);
+    console.log("FILES:", req.files);
+    console.log("==================================");
+    next();
+  },
+
+  validate(ProductValidateSchema),
+
+  create
+);
 
 //* update
 router.put("/:id", 
@@ -85,7 +94,7 @@ router.put("/:id",
             maxCount:10
         }
     ]),
-    authenticate(ALL_Admins),
+   // authenticate(ALL_Admins),
     validate(UpdateProductSchema),
     update);
 

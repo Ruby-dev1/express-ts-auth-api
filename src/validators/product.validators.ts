@@ -15,164 +15,137 @@ export const ProductValidateSchema = z.object({
       .min(10, "description must be atleast 10 characters long")
       .max(800, "description must not exceed 800 characters"),
 
-    brand: z
-    .string("brand must be string")
-    .min(1, "Brand is required"),
+    stock: z.coerce.number().min(0),
+    brand: z.string("brand must be string").min(1, "Brand is required"),
 
     category: z
-    .string("category must be string")
-    .min(1, "category is required"),
+      .string("category must be string")
+      .min(1, "category is required"),
 
-    is_featured: z
-    .coerce.boolean()
-    .optional(),
+    is_featured: z.coerce.boolean().optional(),
   }),
-  
 });
 
-//* get all validation 
+//* get all validation
 
 export const ProductQuerySchema = z.object({
   body: z.object({}).default({}),
-  params:z.object({}).default({}),
+  params: z.object({}).default({}),
 
-  query:z.object({
-    query:z.string().optional(),
+  query: z
+    .object({
+      query: z.string().optional(),
 
-    category:z
-    .string()
-    .regex(/^[0-9a-fA-F]{24}$/,"Invalid categroyId")
-    .optional(),
+      category: z
+        .string()
+        .regex(/^[0-9a-fA-F]{24}$/, "Invalid categroyId")
+        .optional(),
 
-    Brand: z
-    .string()
-    .regex(/^[0-9a-fA-F]{24}$/,"Invalid BrandId")
-    .optional(),
+      Brand: z
+        .string()
+        .regex(/^[0-9a-fA-F]{24}$/, "Invalid BrandId")
+        .optional(),
 
-    minPrice: z.coerce
-    .number()
-    .min(0, "Minimum price cannot be negative")
-    .optional(),
-    
+      minPrice: z.coerce
+        .number()
+        .min(0, "Minimum price cannot be negative")
+        .optional(),
 
-    maxPrice: z.coerce
-    .number()
-    .min(0, "Maximum price cannot be nagative")
-    .optional(),
-
-
-
-  }).refine(
-    (data)=>
-      data.minPrice===undefined||
-      data.maxPrice===undefined||
-      data.minPrice<= data.maxPrice,
+      maxPrice: z.coerce
+        .number()
+        .min(0, "Maximum price cannot be nagative")
+        .optional(),
+    })
+    .refine(
+      (data) =>
+        data.minPrice === undefined ||
+        data.maxPrice === undefined ||
+        data.minPrice <= data.maxPrice,
       {
-        message:"minPrice must be less than or equal to maxPrice",
-        path:["minPrice"],
-      }
+        message: "minPrice must be less than or equal to maxPrice",
+        path: ["minPrice"],
+      },
+    ),
 
-  ),
+  sortBy: z.enum(["name", "createdAt", "updatedAt"]).default("createdAt"),
 
-  sortBy: z
-  .enum(["name", "createdAt", "updatedAt"])
-  .default("createdAt"),
-  
-  order: z
-  .enum(["ASC", "DES"])
-  .default("DES"),
+  order: z.enum(["ASC", "DES"]).default("DES"),
 
-  page: z
-  .number()
-  .int()
-  .min(1, "Page must be atleast 1")
-  .default(1),
+  page: z.number().int().min(1, "Page must be atleast 1").default(1),
 
-  limit:z
-  .number()
-  .int()
-  .min(1, "limit must be atleast 1")
-  .max(100, "limit cannot exceed 100")
-  .default(10),
-
-
+  limit: z
+    .number()
+    .int()
+    .min(1, "limit must be atleast 1")
+    .max(100, "limit cannot exceed 100")
+    .default(10),
 });
 
 //* update validation
-export  const UpdateProductSchema = z.object({
-    body:z.object({
-       
+export const UpdateProductSchema = z.object({
+  body: z.object({
     name: z
       .string("name must be string")
       .min(3, "name must be atleast 3 characters long")
-      .max(50, "name must not exceed 50 characters"),
+      .max(50, "name must not exceed 50 characters")
+      .optional(),
 
-    price: z.coerce.number(),
+    price: z.coerce.number().optional(),
+
+    stock: z.coerce.number().min(0).optional(),
 
     description: z
       .string("description must be string")
       .min(10, "description must be atleast 10 characters long")
-      .max(800, "description must not exceed 800 characters"),
+      .max(800, "description must not exceed 800 characters")
+      .optional(),
 
     brand: z
-    .string("brand must be string")
-    .min(1, "Brand is required"),
+      .string("brand must be string")
+      .min(1, "Brand is required")
+      .optional(),
 
     category: z
-    .string("category must be string")
-    .min(1, "category is required"),
+      .string("category must be string")
+      .min(1, "category is required")
+      .optional(),
 
-    is_featured: z
-    .coerce.boolean()
-    .optional(),
-  
-  deleted_images: z
-  .array(z.string())
-  .optional(),
+    is_featured: z.coerce.boolean().optional(),
 
-    }),
-    params: z.object({
-        id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID"),
+    deleted_images: z.array(z.string()).optional(),
+  }),
 
-    }),
-     query: z.object({}).default({}),
-  });
-       
+  params: z.object({
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Product ID"),
+  }),
 
-   
+  query: z.object({}).default({}),
+});
 
 //* get by id  & delete validation
 export const ProductIdSchema = z.object({
-    body:z.object({}).default({}),
-    params:z.object({
-        id:z.string().regex(/^[0-9a-fA-F]{24}$/,"Invalid product ID"),
-     }),
-     query:z.object({}).default({})
-
+  body: z.object({}).default({}),
+  params: z.object({
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid product ID"),
+  }),
+  query: z.object({}).default({}),
 });
-
 
 //* category by id validation
 export const CategoryIdSchema = z.object({
-     body:z.object({}).default({}),
-    params:z.object({
-        id:z.string().regex(/^[0-9a-fA-F]{24}$/,"Invalid product ID"),
-     }),
-     query:z.object({}).default({})
-
-    
+  body: z.object({}).default({}),
+  params: z.object({
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid product ID"),
+  }),
+  query: z.object({}).default({}),
 });
-
-
 
 //* Brand by id validation
 
 export const BrandIdSchema = z.object({
-    body:z.object({}).default({}),
-    params:z.object({
-        id:z.string().regex(/^[0-9a-fA-F]{24}$/,"Invalid product ID"),
-     }),
-     query:z.object({}).default({})
-
-
+  body: z.object({}).default({}),
+  params: z.object({
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid product ID"),
+  }),
+  query: z.object({}).default({}),
 });

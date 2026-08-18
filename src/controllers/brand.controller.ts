@@ -21,22 +21,26 @@ export const create = catchasync(
     const existingBrand = await Brand.findOne({ name });
     if (existingBrand) throw new appError("name is already exists", 404);
 
+
+        const { path, public_id } = await uploadToCloudinary(file, uploadFolder);
     const brand = await Brand.create({
       name,
       description,
+      logo:{
+        path,
+        public_id,
+      }
+ 
     });
 
     // * handle logo upload
     //* upload to cloudinary
-    const { path, public_id } = await uploadToCloudinary(file, uploadFolder);
+
 
     //profile_image = {path:'',public_id:''}
     // profile_image = ''
 
-    brand.logo = {
-      path,
-      public_id,
-    };
+
 
     res.status(201).json({
       message: "Brand is created successfully",
@@ -114,8 +118,21 @@ export const getbyID = catchasync(
 export const update = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
+ 
+    const file = req.file;
+const {name,description}= req.body
+  let logo = null;
 
-    const updateBrand = await Brand.findByIdAndUpdate(id, req.body, {
+    if(file){
+     
+      const {path,public_id} = await uploadToCloudinary(file,"/brands")
+      logo={
+        path,
+        public_id,
+      }
+    }
+
+    const updateBrand = await Brand.findByIdAndUpdate(id, {name,description,logo}, {
       new: true,
       runValidators: true,
     });
@@ -123,6 +140,9 @@ export const update = catchasync(
     if (!updateBrand) {
       throw new appError("Brand not found", 404);
     }
+
+  
+
 
     res.status(200).json({
       message: "Brand updated successfully",

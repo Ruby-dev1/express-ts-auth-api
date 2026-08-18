@@ -190,13 +190,13 @@ export const logout = catchasync(async(req:Request,res:Response)=>{
     })
 })
 
-
+//* get Profile
 
 export const getProfile = catchasync(async (req: Request, res: Response) => {
 
-    const {id} = req.user._id
-    const user = await User.findById(id);
+     const userId = req.user._id;
 
+    const user = await User.findById(userId);
     if(!user){
          res.clearCookie("access_token",{
         
@@ -258,8 +258,148 @@ sendResponse(res,{
 
 })
 
-//* change password 
 
-//* forgot password 
+//* change password
 
-//* change mail
+export const changePassword = catchasync(
+    async (req: Request, res: Response) => {
+
+        const { _id } = req.user;
+        const { old_password, new_password } = req.body;
+
+        //* find logged-in user
+        const user = await User.findById(_id).select("+password");
+
+        if (!user) {
+            throw new appError("User not found", 404);
+        }
+
+        //* check old password
+        const isPasswordMatched = await comparePassword(
+            old_password,
+            user.password
+        );
+
+        if (!isPasswordMatched) {
+            throw new appError("Old password is incorrect", 400);
+        }
+
+        //* hash new password
+        const hashedPassword = await hashPassword(new_password);
+
+        //* update password
+        user.password = hashedPassword;
+
+        await user.save();
+
+        //* success response
+        sendResponse(res, {
+            message: "Password changed successfully",
+            statusCode: 200,
+            data: null,
+        });
+    }
+);
+//* forgot password
+
+export const forgotPassword = catchasync(
+    async (req: Request, res: Response) => {
+
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            throw new appError("User not found", 404);
+        }
+
+        //* generate reset token
+        const resetToken = generateJwtToken({
+            _id: user._id,
+            email: user.email,
+            role: user.role,
+        });
+
+const resetLink =
+    `${ENV_CONFIG.FRONT_END_URL}/reset-password/${resetToken}`;
+
+        await sendEmail({
+            to: user.email,
+            subject: "Reset your password",
+            html: `
+                <h2>Password Reset</h2>
+
+                <p>Hello ${user.full_name},</p>
+
+                <p>You requested to reset your password.</p>
+
+                <p>
+                    Click the link below to reset your password:
+                </p>
+
+                <a href="${resetLink}">
+                    Reset Password
+                </a>
+
+                <p>This link will allow you to create a new password.</p>
+            `,
+        });
+
+        sendResponse(res, {
+            message: "Password reset link sent to your email",
+            statusCode: 200,
+            data: null,
+        });
+    }
+);
+
+
+
+//* change email
+
+export const changeEmail = catchasync(
+    async (req: Request, res: Response) => {
+
+        const { _id } = req.user;
+        const { password, new_email } = req.body;
+
+        const user = await User.findById(_id).select("+password");
+
+        if (!user) {
+            throw new appError("User not found", 404);
+        }
+
+        //* check password
+        const isPasswordMatched = await comparePassword(
+            password,
+            user.password
+        );
+
+        if (!isPasswordMatched) {
+            throw new appError("Password is incorrect", 400);
+        }
+
+        //* check if email already exists
+        const existingUser = await User.findOne({
+            email: new_email,
+            _id: { $ne: _id },
+        });
+
+        if (existingUser) {
+            throw new appError("Email already exists", 400);
+        }
+
+        //* update email
+        user.email = new_email;
+
+        await user.save();
+
+        sendResponse(res, {
+            message: "Email changed successfully",
+            statusCode: 200,
+            data: {
+                email: user.email,
+            },
+        });
+    }
+);
