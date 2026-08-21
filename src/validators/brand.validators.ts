@@ -54,9 +54,11 @@ export const BrandquerySchema = z.object({
 
     order: z.enum(["ASC", "DES"]).default("DES"),
 
-    page: z.number().int().min(1, "Page must be atleast 1").default(1),
+    page: z.coerce
+    .number().int().min(1, "Page must be atleast 1").default(1),
 
     limit: z
+    .coerce
       .number()
       .int()
       .min(1, "limit must be atleast 1")

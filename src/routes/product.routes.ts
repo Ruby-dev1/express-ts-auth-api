@@ -77,7 +77,7 @@ router.post(
     console.log("==================================");
     next();
   },
-
+//authenticate(ALL_Admins),
   validate(ProductValidateSchema),
 
   create
@@ -94,7 +94,7 @@ router.put("/:id",
             maxCount:10
         }
     ]),
-   // authenticate(ALL_Admins),
+   authenticate(ALL_Admins),
     validate(UpdateProductSchema),
     update);
 

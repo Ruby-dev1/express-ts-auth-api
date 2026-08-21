@@ -87,9 +87,9 @@ export const Get_Cart = catchasync(
 export const Update_Cart = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user._id;
-    const { productId, quantity } = req.body;
+    const { productId } = req.params;
+    const { quantity } = req.body;
 
-  
     const cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
@@ -97,11 +97,15 @@ export const Update_Cart = catchasync(
     }
 
     const item = cart.items.find(
-      (item) => item.product.toString() === productId,
+      (item) => item.product.toString() === productId
     );
 
     if (!item) {
       throw new appError("Product not found in cart", 404);
+    }
+
+    if (quantity < 1) {
+      throw new appError("Quantity must be at least 1", 400);
     }
 
     item.quantity = quantity;
@@ -113,7 +117,7 @@ export const Update_Cart = catchasync(
       statusCode: 200,
       data: cart,
     });
-  },
+  }
 );
 
 //* Remove Product

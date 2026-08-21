@@ -112,37 +112,46 @@ export const getbyID = catchasync(
     });
   },
 );
-
 //* update brand
 
 export const update = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
- 
-    const file = req.file;
-const {name,description}= req.body
-  let logo = null;
 
-    if(file){
-     
-      const {path,public_id} = await uploadToCloudinary(file,"/brands")
-      logo={
+    const { name, description } = req.body;
+
+    const file = req.file;
+
+    const updateData: any = {
+      name,
+      description,
+    };
+
+    // Upload new logo only if user selected one
+    if (file) {
+      const { path, public_id } = await uploadToCloudinary(
+        file,
+        "/brands"
+      );
+
+      updateData.logo = {
         path,
         public_id,
-      }
+      };
     }
 
-    const updateBrand = await Brand.findByIdAndUpdate(id, {name,description,logo}, {
-      new: true,
-      runValidators: true,
-    });
+    const updateBrand = await Brand.findByIdAndUpdate(
+      id,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updateBrand) {
       throw new appError("Brand not found", 404);
     }
-
-  
-
 
     res.status(200).json({
       message: "Brand updated successfully",
@@ -152,7 +161,6 @@ const {name,description}= req.body
     });
   },
 );
-
 //* Delete Brand
 
 export const remove = catchasync(

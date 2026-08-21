@@ -21,37 +21,37 @@ export const CategoryValidateSchema = z.object({
 //* get all
 
 export const CategoryquerySchema = z.object({
-  body:z.object({}).default({}),
-  params:z.object({}).default({}),
-  query:z.object({
-    query:z.string({}).optional(),
+  body: z.object({}).default({}),
 
-      sortBy: z
+  params: z.object({}).default({}),
+
+  query: z.object({
+    query: z.string().optional(),
+
+    sortBy: z
       .enum(["name", "createdAt", "updatedAt"])
       .default("createdAt"),
 
-      order:z
-      .enum(["ASC","DES"])
-      .default("DES"),
+    order: z
+      .enum(["ASC", "DESC"])
+      .default("DESC"),
 
-      page: z
+    page: z
+      .coerce
       .number()
       .int()
-      .min(1, "Page must be atleast 1")
+      .min(1, "Page must be at least 1")
       .default(1),
 
-      limit:z
+    limit: z
+      .coerce
       .number()
       .int()
-      .min(1,"limit must be atleast 1")
-      .max(100,"limit cannot exceed 100")
+      .min(1, "Limit must be at least 1")
+      .max(100, "Limit cannot exceed 100")
       .default(10),
-
-
-
   }),
-})
-
+});
 
 //* update
 

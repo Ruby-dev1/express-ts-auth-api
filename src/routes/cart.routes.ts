@@ -11,7 +11,6 @@ import { validate } from "../middlewares/validator.middleware";
 import {
   CartProductIdSchema,
   CartValidateSchema,
-  UpdateCartSchema,
 } from "../validators/cart.validator";
 import { User_Only } from "../types/enum.types";
 
@@ -29,11 +28,13 @@ router.post(
 router.get("/", authenticate(), Get_Cart);
 
 //* Update product quantity
-router.put("/", authenticate(), 
-validate(UpdateCartSchema),
- Update_Cart);
+router.put(
+  "/:productId",
+  authenticate(),
+  Update_Cart
+);
 
-// *Remove a product from cart
+//* Remove a product from cart
 router.delete(
   "/:productId",
   authenticate(),
