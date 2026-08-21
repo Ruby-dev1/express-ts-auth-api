@@ -152,7 +152,7 @@ export const login = catchasync(async(req:Request, res: Response, next:NextFunct
             httpOnly: ENV_CONFIG.NODE_ENV=== "development"? false :true,
             secure: ENV_CONFIG.NODE_ENV === "development"? false: true,
             maxAge: 7*24*60*60*1000,
-            sameSite: ENV_CONFIG.NODE_ENV === "development"? "lax": true,
+            sameSite: ENV_CONFIG.NODE_ENV === "development"? "lax":"none",
         })
 
 
